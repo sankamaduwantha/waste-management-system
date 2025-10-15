@@ -1,0 +1,345 @@
+/**
+ * Plastic Suggestion Card Styles
+ * Clean, modern design with accessibility in mind
+ */
+
+.plastic-suggestion-card {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.plastic-suggestion-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+.plastic-suggestion-card:focus {
+  outline: 2px solid #4CAF50;
+  outline-offset: 2px;
+}
+
+/* Compact version */
+.plastic-suggestion-card.compact {
+  flex-direction: row;
+  height: auto;
+}
+
+.plastic-suggestion-card.compact .card-image {
+  width: 120px;
+  height: 120px;
+  flex-shrink: 0;
+}
+
+.plastic-suggestion-card.compact .card-content {
+  padding: 12px;
+}
+
+/* Image Section */
+.card-image {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: #f5f5f5;
+}
+
+.card-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.plastic-suggestion-card:hover .card-image img {
+  transform: scale(1.05);
+}
+
+.image-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 8px 12px;
+  backdrop-filter: blur(8px);
+}
+
+/* Content Section */
+.card-content {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* Header */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  flex: 1;
+  line-height: 1.4;
+}
+
+.card-badges {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-end;
+}
+
+/* Badges */
+.category-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: white;
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+.difficulty-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* Description */
+.card-description {
+  color: #666;
+  font-size: 0.9rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Stats */
+.card-stats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  padding: 12px 0;
+  border-top: 1px solid #e0e0e0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.stat-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.875rem;
+}
+
+.stat-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.stat-label {
+  color: #666;
+  font-weight: 500;
+}
+
+.stat-value {
+  color: #1a1a1a;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+/* Impact Score */
+.impact-score {
+  text-align: center;
+}
+
+.score-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score-label {
+  font-size: 0.7rem;
+  color: #666;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Tags */
+.card-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  display: inline-block;
+  padding: 4px 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #666;
+  font-weight: 500;
+}
+
+/* Actions */
+.card-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: auto;
+}
+
+.card-actions button {
+  flex: 1;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.btn-implement {
+  background: #4CAF50;
+  color: white;
+}
+
+.btn-implement:hover {
+  background: #45a049;
+  transform: scale(1.02);
+}
+
+.btn-implement:active {
+  transform: scale(0.98);
+}
+
+.btn-details {
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.btn-details:hover {
+  background: #e0e0e0;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card-header {
+    flex-direction: column;
+  }
+
+  .card-badges {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .card-stats {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .card-actions {
+    flex-direction: column;
+  }
+
+  .plastic-suggestion-card.compact {
+    flex-direction: column;
+  }
+
+  .plastic-suggestion-card.compact .card-image {
+    width: 100%;
+    height: 150px;
+  }
+}
+
+/* Dark mode support (optional) */
+@media (prefers-color-scheme: dark) {
+  .plastic-suggestion-card {
+    background: #2a2a2a;
+  }
+
+  .card-title {
+    color: #ffffff;
+  }
+
+  .card-description {
+    color: #b0b0b0;
+  }
+
+  .stat-label {
+    color: #b0b0b0;
+  }
+
+  .stat-value {
+    color: #ffffff;
+  }
+
+  .btn-details {
+    background: #3a3a3a;
+    color: #ffffff;
+  }
+
+  .btn-details:hover {
+    background: #4a4a4a;
+  }
+
+  .tag {
+    background: #3a3a3a;
+    color: #b0b0b0;
+  }
+}
+
+/* Utility color classes */
+.bg-blue-500 { background-color: #2196F3; }
+.bg-green-500 { background-color: #4CAF50; }
+.bg-purple-500 { background-color: #9C27B0; }
+.bg-yellow-500 { background-color: #FFC107; }
+.bg-red-500 { background-color: #F44336; }
+.bg-indigo-500 { background-color: #3F51B5; }
+.bg-pink-500 { background-color: #E91E63; }
+.bg-gray-500 { background-color: #9E9E9E; }
+.bg-teal-500 { background-color: #009688; }
+.bg-orange-500 { background-color: #FF9800; }
+
+.bg-green-100 { background-color: #C8E6C9; }
+.bg-yellow-100 { background-color: #FFF9C4; }
+.bg-red-100 { background-color: #FFCDD2; }
+
+.text-green-800 { color: #2E7D32; }
+.text-yellow-800 { color: #F57F17; }
+.text-red-800 { color: #C62828; }
+
+.text-green-600 { color: #43A047; }
+.text-yellow-600 { color: #FDD835; }
+.text-orange-600 { color: #FB8C00; }
+.text-red-600 { color: #E53935; }
+.text-blue-600 { color: #1E88E5; }
+.text-purple-600 { color: #8E24AA; }
+
+.mr-1 { margin-right: 0.25rem; }
+.mr-2 { margin-right: 0.5rem; }

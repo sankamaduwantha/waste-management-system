@@ -315,6 +315,46 @@ exports.updateProfile = async (req, res, next) => {
   }
 };
 
+// @desc    Upload profile image
+// @route   POST /api/v1/auth/upload-profile-image
+// @access  Private
+exports.uploadProfileImage = async (req, res, next) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({
+        status: 'error',
+        message: 'Please upload an image file'
+      });
+    }
+
+    // Delete old profile image if exists
+    const user = await User.findById(req.user.id);
+    if (user.profileImage && user.profileImage !== 'default-avatar.png') {
+      const fs = require('fs');
+      const path = require('path');
+      const oldImagePath = path.join(__dirname, '../uploads/profiles', user.profileImage);
+      if (fs.existsSync(oldImagePath)) {
+        fs.unlinkSync(oldImagePath);
+      }
+    }
+
+    // Update user with new profile image
+    const filename = req.file.filename;
+    user.profileImage = filename;
+    await user.save();
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        profileImage: filename,
+        imageUrl: `/uploads/profiles/${filename}`
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Helper function to get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token

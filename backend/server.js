@@ -60,12 +60,15 @@ app.set('io', io);
 app.use(helmet()); // Security headers
 app.use(compression()); // Compress responses
 app.use(cors({
-  origin: ['http://localhost:3000', 'http://localhost:3001'],
+  origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
   credentials: true
 }));
 app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(morgan('dev')); // Logging
+
+// Serve static files for uploads
+app.use('/uploads', express.static('uploads'));
 
 // Apply rate limiting to all routes
 app.use('/api/', rateLimiter);
@@ -73,20 +76,20 @@ app.use('/api/', rateLimiter);
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
-  console.log('✅ MongoDB connected successfully');
+  console.log(' MongoDB connected successfully');
   
   // Start scheduled jobs after DB connection
   scheduleNotifications();
   updateBinStatus();
 })
 .catch((err) => {
-  console.error('❌ MongoDB connection error:', err);
+  console.error('MongoDB connection error:', err);
   process.exit(1);
 });
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-  console.log('🔌 New client connected:', socket.id);
+  console.log('New client connected:', socket.id);
   
   socket.on('join-room', (userId) => {
     socket.join(userId);
@@ -94,7 +97,7 @@ io.on('connection', (socket) => {
   });
   
   socket.on('disconnect', () => {
-    console.log('🔌 Client disconnected:', socket.id);
+    console.log('Client disconnected:', socket.id);
   });
 });
 
@@ -139,19 +142,19 @@ app.use(errorHandler);
 // Start server
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => {
-  console.log(`🚀 Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
-  console.log(`📡 API available at http://localhost:${PORT}/api/${API_VERSION}`);
+  console.log(`Server running in ${process.env.NODE_ENV} mode on port ${PORT}`);
+  console.log(`API available at http://localhost:${PORT}/api/${API_VERSION}`);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
-  console.error('❌ Unhandled Rejection:', err);
+  console.error('Unhandled Rejection:', err);
   server.close(() => process.exit(1));
 });
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (err) => {
-  console.error('❌ Uncaught Exception:', err);
+  console.error('Uncaught Exception:', err);
   process.exit(1);
 });
 

@@ -100,6 +100,11 @@ const useAuthStore = create(
       updateUser: (userData) => {
         set({ user: userData })
       },
+
+      // Set user (alias for updateUser for compatibility)
+      setUser: (userData) => {
+        set({ user: userData })
+      },
     }),
     {
       name: 'auth-storage',

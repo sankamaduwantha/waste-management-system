@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import Footer from './Footer'
 import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 import useAuthStore from '../store/authStore'
@@ -41,9 +42,12 @@ const Layout = () => {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-          <Outlet />
-        </main>
+        <div className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 flex flex-col">
+          <main className="flex-1 p-6">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
       </div>
     </div>
   )

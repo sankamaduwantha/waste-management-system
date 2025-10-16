@@ -34,6 +34,85 @@ const SustainabilityManagerDashboard = () => {
     </div>
   );
 
+   const PlasticReductionTips = () => (
+    <div className="plastic-reduction-tips">
+      <div className="tips-header">
+        <FaLightbulb className="tips-icon" />
+        <h2>Plastic Reduction Tips</h2>
+      </div>
+      <div className="tips-grid">
+        <div className="tip-card">
+          <div className="tip-icon">
+            <FaRecycle />
+          </div>
+          <div className="tip-content">
+            <h3>Switch to Reusables</h3>
+            <p>Use reusable alternatives like water bottles, shopping bags, and coffee cups instead of single-use plastics.</p>
+          </div>
+        </div>
+        
+        <div className="tip-card">
+          <div className="tip-icon">
+            <FaShoppingBag />
+          </div>
+          <div className="tip-content">
+            <h3>Choose Minimal Packaging</h3>
+            <p>Select products with minimal packaging or buy in bulk to reduce plastic waste.</p>
+          </div>
+        </div>
+        
+        <div className="tip-card">
+          <div className="tip-icon">
+            <FaUtensils />
+          </div>
+          <div className="tip-content">
+            <h3>Avoid Single-Use Items</h3>
+            <p>Skip plastic straws, cutlery, and other disposable items when possible.</p>
+          </div>
+        </div>
+        
+        <div className="tip-card">
+          <div className="tip-icon">
+            <FaLeaf />
+          </div>
+          <div className="tip-content">
+            <h3>Natural Fibers</h3>
+            <p>Choose clothing made from natural fibers instead of synthetic materials that shed microplastics.</p>
+          </div>
+        </div>
+        
+        <div className="tip-card">
+          <div className="tip-icon">
+            <FaRecycle />
+          </div>
+          <div className="tip-content">
+            <h3>Reusable Containers</h3>
+            <p>Use reusable containers for lunches, food storage, and leftovers instead of plastic wrap or bags.</p>
+          </div>
+        </div>
+        
+        <div className="tip-card">
+          <div className="tip-icon">
+            <FaLightbulb />
+          </div>
+          <div className="tip-content">
+            <h3>Repair & Recycle</h3>
+            <p>Repair plastic items instead of replacing them and properly recycle what you can't reuse.</p>
+          </div>
+        </div>
+      </div>
+      
+      <div className="tips-summary">
+        <h4>Key Message:</h4>
+        <p>
+          To reduce plastic use, switch to reusable alternatives like water bottles, shopping bags, and coffee cups, 
+          and choose products with minimal packaging or in bulk. Avoid single-use items such as straws and plastic cutlery, 
+          opt for natural fibers in clothing, and use reusable containers for lunches and food storage. 
+          Properly recycle what you can and repair plastic items instead of replacing them.
+        </p>
+      </div>
+    </div>
+  );
   return (
     <div className="sustainability-manager-dashboard">
       {/* Header */}

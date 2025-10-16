@@ -15,7 +15,7 @@ import ResidentDashboard from './pages/resident/Dashboard'
 import CollectionSchedule from './pages/resident/CollectionSchedule'
 import ServiceRequests from './pages/resident/ServiceRequests'
 import Payments from './pages/resident/Payments'
-import Profile from './pages/resident/Profile'
+import ResidentProfile from './pages/resident/Profile'
 import ResidentPlasticSuggestions from './pages/resident/ResidentPlasticSuggestions'
 import Appointments from './pages/resident/Appointments'
 
@@ -25,12 +25,17 @@ import FleetManagement from './pages/city-manager/FleetManagement'
 import RouteManagement from './pages/city-manager/RouteManagement'
 import BinManagement from './pages/city-manager/BinManagement'
 import RequestManagement from './pages/city-manager/RequestManagement'
+import CityManagerProfile from './pages/city-manager/Profile'
 
 // Admin pages
 import AdminDashboard from './pages/admin/Dashboard'
 import UserManagement from './pages/admin/UserManagement'
 import ZoneManagement from './pages/admin/ZoneManagement'
 import SystemSettings from './pages/admin/SystemSettings'
+import AdminProfile from './pages/admin/Profile'
+
+// Sustainability Manager pages (import at top)
+import SustainabilityManagerProfile from './pages/sustainability-manager/Profile'
 
 // Sustainability Manager pages
 import SustainabilityDashboard from './pages/sustainability/Dashboard'
@@ -66,7 +71,7 @@ function App() {
           <Route path="schedule" element={<PrivateRoute roles={['resident']}><CollectionSchedule /></PrivateRoute>} />
           <Route path="requests" element={<PrivateRoute roles={['resident']}><ServiceRequests /></PrivateRoute>} />
           <Route path="payments" element={<PrivateRoute roles={['resident']}><Payments /></PrivateRoute>} />
-          <Route path="profile" element={<PrivateRoute roles={['resident']}><Profile /></PrivateRoute>} />
+          <Route path="profile" element={<PrivateRoute roles={['resident']}><ResidentProfile /></PrivateRoute>} />
           <Route path="appointments" element={<PrivateRoute roles={['resident']}><Appointments /></PrivateRoute>} />
           <Route path="plastic-suggestions" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
           <Route path="plastic-suggestions/:id" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
@@ -79,6 +84,7 @@ function App() {
           <Route path="routes" element={<PrivateRoute roles={['city_manager', 'admin']}><RouteManagement /></PrivateRoute>} />
           <Route path="bins" element={<PrivateRoute roles={['city_manager', 'admin']}><BinManagement /></PrivateRoute>} />
           <Route path="requests" element={<PrivateRoute roles={['city_manager', 'admin']}><RequestManagement /></PrivateRoute>} />
+          <Route path="profile" element={<PrivateRoute roles={['city_manager']}><CityManagerProfile /></PrivateRoute>} />
         </Route>
 
         {/* Admin routes */}
@@ -87,6 +93,7 @@ function App() {
           <Route path="users" element={<PrivateRoute roles={['admin']}><UserManagement /></PrivateRoute>} />
           <Route path="zones" element={<PrivateRoute roles={['admin']}><ZoneManagement /></PrivateRoute>} />
           <Route path="settings" element={<PrivateRoute roles={['admin']}><SystemSettings /></PrivateRoute>} />
+          <Route path="profile" element={<PrivateRoute roles={['admin']}><AdminProfile /></PrivateRoute>} />
         </Route>
 
         {/* Sustainability Manager routes */}
@@ -95,6 +102,7 @@ function App() {
           <Route path="analytics" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><Analytics /></PrivateRoute>} />
           <Route path="reports" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><Reports /></PrivateRoute>} />
           <Route path="impact" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><EnvironmentalImpact /></PrivateRoute>} />
+          <Route path="profile" element={<PrivateRoute roles={['sustainability_manager']}><SustainabilityManagerProfile /></PrivateRoute>} />
         </Route>
 
         {/* Plastic Reduction Management (Sustainability Manager CRUD) */}

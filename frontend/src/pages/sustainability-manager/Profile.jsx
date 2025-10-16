@@ -9,7 +9,6 @@ const Profile = () => {
   const [saving, setSaving] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
-  const [residentData, setResidentData] = useState(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -25,11 +24,7 @@ const Profile = () => {
       emailNotifications: true,
       smsNotifications: true,
       pushNotifications: true
-    },
-    // Resident specific fields
-    householdSize: 1,
-    propertyType: 'house',
-    specialRequirements: ''
+    }
   });
 
   useEffect(() => {
@@ -40,12 +35,10 @@ const Profile = () => {
     try {
       setLoading(true);
       const response = await api.get('/auth/me');
-      const { user, residentProfile } = response.data.data;
+      const { user } = response.data.data;
       
       setUserData(user);
-      setResidentData(residentProfile);
 
-      // Populate form data
       setFormData({
         name: user.name || '',
         email: user.email || '',
@@ -60,10 +53,7 @@ const Profile = () => {
           emailNotifications: user.preferences?.emailNotifications ?? true,
           smsNotifications: user.preferences?.smsNotifications ?? true,
           pushNotifications: user.preferences?.pushNotifications ?? true
-        },
-        householdSize: residentProfile?.householdSize || 1,
-        propertyType: residentProfile?.propertyType || 'house',
-        specialRequirements: residentProfile?.specialRequirements || ''
+        }
       });
     } catch (error) {
       console.error('Error fetching profile:', error);
@@ -109,9 +99,8 @@ const Profile = () => {
       setSaving(true);
       const response = await api.put('/auth/update-profile', formData);
       
-      const { user, residentProfile } = response.data.data;
+      const { user } = response.data.data;
       setUserData(user);
-      setResidentData(residentProfile);
       
       setIsEditing(false);
       toast.success('Profile updated successfully!');
@@ -124,7 +113,6 @@ const Profile = () => {
   };
 
   const handleCancel = () => {
-    // Reset form to original values
     if (userData) {
       setFormData({
         name: userData.name || '',
@@ -140,10 +128,7 @@ const Profile = () => {
           emailNotifications: userData.preferences?.emailNotifications ?? true,
           smsNotifications: userData.preferences?.smsNotifications ?? true,
           pushNotifications: userData.preferences?.pushNotifications ?? true
-        },
-        householdSize: residentData?.householdSize || 1,
-        propertyType: residentData?.propertyType || 'house',
-        specialRequirements: residentData?.specialRequirements || ''
+        }
       });
     }
     setIsEditing(false);
@@ -160,7 +145,6 @@ const Profile = () => {
   return (
     <div className="max-w-4xl mx-auto">
       <div className="card">
-        {/* Header */}
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
@@ -306,56 +290,6 @@ const Profile = () => {
             </div>
           </div>
 
-          {/* Resident Specific Fields */}
-          {userData?.role === 'resident' && (
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Household Information</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <label className="label">Household Size</label>
-                  <input
-                    type="number"
-                    name="householdSize"
-                    value={formData.householdSize}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="input-field"
-                    min="1"
-                  />
-                </div>
-
-                <div>
-                  <label className="label">Property Type</label>
-                  <select
-                    name="propertyType"
-                    value={formData.propertyType}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="input-field"
-                  >
-                    <option value="house">House</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="villa">Villa</option>
-                    <option value="commercial">Commercial</option>
-                  </select>
-                </div>
-
-                <div className="md:col-span-2">
-                  <label className="label">Special Requirements</label>
-                  <textarea
-                    name="specialRequirements"
-                    value={formData.specialRequirements}
-                    onChange={handleInputChange}
-                    disabled={!isEditing}
-                    className="input-field"
-                    rows="3"
-                    placeholder="Any special waste collection requirements..."
-                  />
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* Notification Preferences */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Notification Preferences</h2>
@@ -434,85 +368,6 @@ const Profile = () => {
               )}
             </div>
           </div>
-
-          {/* Resident Stats */}
-          {userData?.role === 'resident' && residentData?.recyclingStats && (
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Recycling Statistics</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-blue-600 font-medium">Total Waste</p>
-                  <p className="text-2xl font-bold text-blue-900">
-                    {residentData.recyclingStats.totalWasteGenerated} kg
-                  </p>
-                </div>
-
-                <div className="bg-green-50 p-4 rounded-lg">
-                  <p className="text-sm text-green-600 font-medium">Recycled</p>
-                  <p className="text-2xl font-bold text-green-900">
-                    {residentData.recyclingStats.wasteRecycled} kg
-                  </p>
-                </div>
-
-                <div className="bg-purple-50 p-4 rounded-lg">
-                  <p className="text-sm text-purple-600 font-medium">Recycling Rate</p>
-                  <p className="text-2xl font-bold text-purple-900">
-                    {residentData.recyclingStats.recyclingRate}%
-                  </p>
-                </div>
-
-                <div className="bg-emerald-50 p-4 rounded-lg">
-                  <p className="text-sm text-emerald-600 font-medium">CO2 Saved</p>
-                  <p className="text-2xl font-bold text-emerald-900">
-                    {residentData.recyclingStats.co2Saved} kg
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* Gamification Stats */}
-          {userData?.role === 'resident' && residentData?.gamification && (
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Achievements</h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-yellow-50 p-4 rounded-lg text-center">
-                  <p className="text-sm text-yellow-600 font-medium">Points</p>
-                  <p className="text-3xl font-bold text-yellow-900">
-                    {residentData.gamification.points}
-                  </p>
-                </div>
-
-                <div className="bg-indigo-50 p-4 rounded-lg text-center">
-                  <p className="text-sm text-indigo-600 font-medium">Level</p>
-                  <p className="text-3xl font-bold text-indigo-900">
-                    {residentData.gamification.level}
-                  </p>
-                </div>
-
-                <div className="bg-pink-50 p-4 rounded-lg text-center">
-                  <p className="text-sm text-pink-600 font-medium">Badges</p>
-                  <p className="text-3xl font-bold text-pink-900">
-                    {residentData.gamification.badges?.length || 0}
-                  </p>
-                </div>
-              </div>
-
-              {residentData.gamification.badges?.length > 0 && (
-                <div className="mt-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Earned Badges</h3>
-                  <div className="flex flex-wrap gap-2">
-                    {residentData.gamification.badges.map((badge, index) => (
-                      <div key={index} className="bg-white border-2 border-yellow-400 rounded-lg px-3 py-2">
-                        <span className="text-2xl">{badge.icon}</span>
-                        <p className="text-sm font-medium">{badge.name}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </form>
       </div>
     </div>

@@ -252,6 +252,69 @@ exports.updatePassword = async (req, res, next) => {
   }
 };
 
+// @desc    Update user profile
+// @route   PUT /api/v1/auth/update-profile
+// @access  Private
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { name, phone, address, preferences, householdSize, propertyType, specialRequirements } = req.body;
+
+    // Fields allowed to update for user
+    const fieldsToUpdate = {};
+    if (name) fieldsToUpdate.name = name;
+    if (phone) fieldsToUpdate.phone = phone;
+    if (address) fieldsToUpdate.address = address;
+    if (preferences) fieldsToUpdate.preferences = preferences;
+
+    // Update user
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      fieldsToUpdate,
+      {
+        new: true,
+        runValidators: true
+      }
+    );
+
+    // If resident, update resident profile
+    if (user.role === 'resident') {
+      const residentFields = {};
+      if (householdSize) residentFields.householdSize = householdSize;
+      if (propertyType) residentFields.propertyType = propertyType;
+      if (specialRequirements !== undefined) residentFields.specialRequirements = specialRequirements;
+
+      if (Object.keys(residentFields).length > 0) {
+        await Resident.findOneAndUpdate(
+          { user: user._id },
+          residentFields,
+          {
+            new: true,
+            runValidators: true
+          }
+        );
+      }
+    }
+
+    // Get updated profile
+    let residentProfile = null;
+    if (user.role === 'resident') {
+      residentProfile = await Resident.findOne({ user: user._id })
+        .populate('binAssigned')
+        .populate('collectionSchedule');
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        user,
+        residentProfile
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 // Helper function to get token from model, create cookie and send response
 const sendTokenResponse = (user, statusCode, res) => {
   // Create token

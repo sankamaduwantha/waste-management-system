@@ -39,6 +39,13 @@ const PlasticSuggestionForm = () => {
   // Load existing suggestion for editing
   useEffect(() => {
     if (isEditMode) {
+      // Validate ID first
+      if (!id || id === 'undefined' || id === 'null') {
+        toast.error('Invalid suggestion ID. Redirecting to create new suggestion.');
+        navigate('/sustainability-manager/plastic-suggestions/create');
+        return;
+      }
+
       const suggestionFromState = location.state?.suggestion;
       if (suggestionFromState) {
         populateForm(suggestionFromState);
@@ -47,8 +54,12 @@ const PlasticSuggestionForm = () => {
         fetchSuggestionById(id).then(suggestion => {
           if (suggestion) {
             populateForm(suggestion);
+          } else {
+            toast.error('Suggestion not found');
+            navigate('/sustainability-manager/plastic-suggestions');
           }
-        }).catch(() => {
+        }).catch((error) => {
+          console.error('Error loading suggestion:', error);
           toast.error('Failed to load suggestion');
           navigate('/sustainability-manager/plastic-suggestions');
         });

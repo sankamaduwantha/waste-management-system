@@ -218,16 +218,21 @@ const useWasteEntryStore = create(
           console.log(`📊 Fetching statistics for ${days} days...`);
           const response = await api.get(`/waste-entries/statistics?days=${days}`);
           
-          console.log('✅ Statistics fetched:', response.data.statistics);
+          console.log('✅ Raw statistics response:', response);
+          console.log('✅ Statistics data:', response.data);
+          
+          const statistics = response.data.statistics || response.data.data?.statistics;
+          console.log('✅ Extracted statistics:', statistics);
           
           set({
-            statistics: response.data.statistics,
+            statistics: statistics,
             loading: false
           });
 
-          return { success: true, data: response.data.statistics };
+          return { success: true, data: statistics };
         } catch (error) {
           console.error('❌ Failed to fetch statistics:', error);
+          console.error('❌ Error response:', error.response);
           const errorMessage = error.response?.data?.message || error.message;
           set({ error: errorMessage, loading: false });
           return { success: false, error: errorMessage };
@@ -243,16 +248,22 @@ const useWasteEntryStore = create(
           console.log(`📈 Fetching chart data for ${days} days...`);
           const response = await api.get(`/waste-entries/chart-data?days=${days}`);
           
-          console.log('✅ Chart data fetched:', response.data.chartData);
+          console.log('✅ Raw API response:', response);
+          console.log('✅ Chart data from API:', response.data);
+          console.log('✅ Chart data object:', response.data.chartData);
+          
+          const chartData = response.data.chartData || response.data.data?.chartData;
+          console.log('✅ Chart data to store:', chartData);
           
           set({
-            chartData: response.data.chartData,
+            chartData: chartData,
             loading: false
           });
 
-          return { success: true, data: response.data.chartData };
+          return { success: true, data: chartData };
         } catch (error) {
           console.error('❌ Failed to fetch chart data:', error);
+          console.error('❌ Error response:', error.response);
           const errorMessage = error.response?.data?.message || error.message;
           set({ error: errorMessage, loading: false });
           return { success: false, error: errorMessage };

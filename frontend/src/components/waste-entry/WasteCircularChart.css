@@ -37,13 +37,18 @@
 /* Chart Content */
 .chart-content {
   position: relative;
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
+  min-height: 350px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Chart Label */
 .chart-label {
   font-size: 0.875rem;
   font-weight: 600;
+  pointer-events: none;
 }
 
 /* Center Text for Donut Chart */
@@ -54,24 +59,27 @@
   transform: translate(-50%, -50%);
   text-align: center;
   pointer-events: none;
+  z-index: 10;
 }
 
 .center-total {
   display: flex;
   flex-direction: column;
   align-items: center;
+  gap: 0.25rem;
 }
 
 .total-label {
   font-size: 0.875rem;
   color: #6b7280;
-  margin-bottom: 0.25rem;
+  font-weight: 500;
 }
 
 .total-value {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-weight: 700;
   color: #1f2937;
+  line-height: 1;
 }
 
 /* Custom Tooltip */
@@ -107,22 +115,25 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 1rem;
-  margin-top: 1.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0 0.5rem;
 }
 
 .legend-item {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  padding: 0.5rem;
+  padding: 0.75rem;
   background: #f9fafb;
   border-radius: 8px;
   transition: transform 0.2s, box-shadow 0.2s;
+  cursor: pointer;
 }
 
 .legend-item:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background: #f3f4f6;
 }
 
 .legend-icon-container {
@@ -332,6 +343,10 @@
     font-size: 1.125rem;
   }
 
+  .chart-content {
+    min-height: 300px;
+  }
+
   .chart-legend {
     grid-template-columns: 1fr;
     gap: 0.75rem;
@@ -343,7 +358,7 @@
   }
 
   .total-value {
-    font-size: 1.25rem;
+    font-size: 1.5rem;
   }
 
   .stat-value {
@@ -354,6 +369,7 @@
 @media (max-width: 480px) {
   .chart-content {
     margin-bottom: 1rem;
+    min-height: 280px;
   }
 
   .legend-item {
@@ -374,6 +390,10 @@
   }
 
   .stat-icon {
+    font-size: 1.25rem;
+  }
+
+  .total-value {
     font-size: 1.25rem;
   }
 }

@@ -39,7 +39,9 @@ const WasteCircularChart = ({
   // Fetch chart data on mount and when days change
   useEffect(() => {
     const loadData = async () => {
-      await fetchChartData(days);
+      console.log('📊 WasteCircularChart: Loading chart data for', days, 'days');
+      const result = await fetchChartData(days);
+      console.log('📊 WasteCircularChart: Chart data loaded', result);
       setIsInitialLoad(false);
     };
     loadData();
@@ -95,27 +97,12 @@ const WasteCircularChart = ({
   /**
    * Custom label renderer for pie chart
    * Shows percentage on each segment
+   * Disabled to prevent overlapping - using legend instead
    */
   const renderCustomLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percentage }) => {
-    if (percentage < 5) return null; // Don't show label for small segments
-
-    const RADIAN = Math.PI / 180;
-    const radius = innerRadius + (outerRadius - innerRadius) * 0.5;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="white"
-        textAnchor={x > cx ? 'start' : 'end'}
-        dominantBaseline="central"
-        className="chart-label"
-      >
-        {`${percentage.toFixed(1)}%`}
-      </text>
-    );
+    // Don't render labels to avoid overlapping text
+    // All information is shown in the legend below
+    return null;
   };
 
   /**
@@ -245,16 +232,16 @@ const WasteCircularChart = ({
       <div className="chart-content">
         {formattedData && formattedData.length > 0 ? (
           <>
-            <ResponsiveContainer width="100%" height={300}>
+            <ResponsiveContainer width="100%" height={350}>
               <PieChart>
                 <Pie
                   data={formattedData}
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={renderCustomLabel}
-                  outerRadius={chartType === 'donut' ? 100 : 110}
-                  innerRadius={chartType === 'donut' ? 60 : 0}
+                  label={false}
+                  outerRadius={chartType === 'donut' ? 110 : 120}
+                  innerRadius={chartType === 'donut' ? 70 : 0}
                   fill="#8884d8"
                   dataKey="value"
                   animationDuration={800}
@@ -264,7 +251,6 @@ const WasteCircularChart = ({
                   ))}
                 </Pie>
                 <Tooltip content={<CustomTooltip />} />
-                {showLegend && <Legend content={<CustomLegend />} />}
               </PieChart>
             </ResponsiveContainer>
 
@@ -287,6 +273,30 @@ const WasteCircularChart = ({
           </div>
         )}
       </div>
+
+      {/* Custom Legend - Displayed outside chart to avoid overlapping */}
+      {formattedData && formattedData.length > 0 && showLegend && (
+        <div className="chart-legend">
+          {formattedData.map((entry, index) => {
+            const category = entry.name.toLowerCase().split(' ')[0];
+            const Icon = ICONS[category];
+            
+            return (
+              <div key={`legend-${index}`} className="legend-item">
+                <div className="legend-icon-container">
+                  {Icon && <Icon className="legend-icon" style={{ color: entry.color }} />}
+                </div>
+                <div className="legend-content">
+                  <span className="legend-label">{entry.name}</span>
+                  <span className="legend-value">
+                    {entry.value.toFixed(2)} kg ({entry.percentage.toFixed(1)}%)
+                  </span>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Additional statistics */}
       <div className="chart-stats">

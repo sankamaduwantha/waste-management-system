@@ -247,24 +247,46 @@ class WasteEntryService {
    */
   async getUserStatistics(userId, days = 30) {
     try {
+      console.log(`📊 Getting statistics for user ${userId}, last ${days} days`);
       const stats = await WasteEntry.getUserStatistics(userId, days);
+      console.log('📊 Raw stats from DB:', JSON.stringify(stats, null, 2));
 
       // Calculate additional metrics
-      const recyclingRate = stats.totalWaste > 0
-        ? ((stats.breakdown.recyclable / stats.totalWaste) * 100).toFixed(2)
+      const totalWaste = stats.totalWaste || 0;
+      const breakdown = stats.breakdown || { general: 0, recyclable: 0, organic: 0, hazardous: 0 };
+      const entryCount = stats.totalEntries || 0;
+
+      const recyclingRate = totalWaste > 0
+        ? ((breakdown.recyclable / totalWaste) * 100).toFixed(2)
         : 0;
 
-      const organicRate = stats.totalWaste > 0
-        ? ((stats.breakdown.organic / stats.totalWaste) * 100).toFixed(2)
+      const organicRate = totalWaste > 0
+        ? ((breakdown.organic / totalWaste) * 100).toFixed(2)
         : 0;
 
-      return {
-        ...stats,
+      const averagePerDay = entryCount > 0
+        ? (totalWaste / days).toFixed(2)
+        : 0;
+
+      const result = {
+        totalWaste: parseFloat(totalWaste.toFixed(2)),
+        entryCount: entryCount,
+        breakdown: {
+          general: parseFloat(breakdown.general.toFixed(2)),
+          recyclable: parseFloat(breakdown.recyclable.toFixed(2)),
+          organic: parseFloat(breakdown.organic.toFixed(2)),
+          hazardous: parseFloat(breakdown.hazardous.toFixed(2))
+        },
         recyclingRate: parseFloat(recyclingRate),
         organicRate: parseFloat(organicRate),
+        averagePerDay: parseFloat(averagePerDay),
         period: `Last ${days} days`
       };
+
+      console.log('📊 Processed statistics:', JSON.stringify(result, null, 2));
+      return result;
     } catch (error) {
+      console.error('❌ Error getting statistics:', error);
       throw new AppError(`Failed to get statistics: ${error.message}`, 500);
     }
   }
@@ -301,13 +323,14 @@ class WasteEntryService {
    */
   async getChartData(userId, days = 30) {
     try {
+      console.log(`📊 Getting chart data for user ${userId}, ${days} days`);
       const stats = await WasteEntry.getUserStatistics(userId, days);
+      console.log('📊 Stats retrieved:', JSON.stringify(stats, null, 2));
 
       const breakdown = stats.breakdown;
       const total = stats.totalWaste;
 
-      // Return data formatted for circular chart
-      return {
+      const chartData = {
         labels: ['General', 'Recyclable', 'Organic', 'Hazardous'],
         datasets: [
           {
@@ -328,7 +351,13 @@ class WasteEntryService {
         totalWaste: total,
         period: `Last ${days} days`
       };
+
+      console.log('📊 Chart data prepared:', JSON.stringify(chartData, null, 2));
+      
+      // Return data formatted for circular chart
+      return chartData;
     } catch (error) {
+      console.error('❌ Error getting chart data:', error);
       throw new AppError(`Failed to get chart data: ${error.message}`, 500);
     }
   }

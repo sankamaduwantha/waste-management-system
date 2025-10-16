@@ -8,11 +8,13 @@ const {
   forgotPassword,
   resetPassword,
   updatePassword,
-  updateProfile
+  updateProfile,
+  uploadProfileImage
 } = require('../controllers/authController');
 const { protect } = require('../middleware/auth');
 const { validateUserRegistration, validateLogin } = require('../middleware/validator');
 const { authLimiter } = require('../middleware/rateLimiter');
+const upload = require('../config/multer');
 
 // Public routes
 router.post('/register', validateUserRegistration, register);
@@ -25,5 +27,6 @@ router.get('/me', protect, getMe);
 router.post('/logout', protect, logout);
 router.put('/update-password', protect, updatePassword);
 router.put('/update-profile', protect, updateProfile);
+router.post('/upload-profile-image', protect, upload.single('profileImage'), uploadProfileImage);
 
 module.exports = router;

@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { toast } from 'react-toastify';
 import useAuthStore from '../../store/authStore';
 import api from '../../services/api';
 
 const Profile = () => {
-  const { user: authUser } = useAuthStore();
+  const { user: authUser, setUser } = useAuthStore();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [residentData, setResidentData] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
+  const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
     name: '',
@@ -44,6 +47,9 @@ const Profile = () => {
       
       setUserData(user);
       setResidentData(residentProfile);
+      
+      // Update auth store with fresh user data including profileImage
+      setUser(user);
 
       // Populate form data
       setFormData({
@@ -146,7 +152,75 @@ const Profile = () => {
         specialRequirements: residentData?.specialRequirements || ''
       });
     }
+    setImagePreview(null);
     setIsEditing(false);
+  };
+
+  const handleImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+
+    // Validate file size (5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error('Image size should be less than 5MB');
+      return;
+    }
+
+    // Show preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagePreview(reader.result);
+    };
+    reader.readAsDataURL(file);
+
+    // Upload image
+    try {
+      setUploading(true);
+      const formData = new FormData();
+      formData.append('profileImage', file);
+
+      const response = await api.post('/auth/upload-profile-image', formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
+
+      const { profileImage } = response.data.data;
+      
+      // Update local user data state
+      const updatedUserData = { ...userData, profileImage };
+      setUserData(updatedUserData);
+      
+      // Update auth store with the updated user data
+      const updatedAuthUser = { ...authUser, profileImage };
+      setUser(updatedAuthUser);
+
+      toast.success('Profile image updated successfully!');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      toast.error(error.response?.data?.message || 'Failed to upload image');
+      setImagePreview(null);
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const getProfileImageUrl = () => {
+    if (imagePreview) return imagePreview;
+    if (userData?.profileImage && userData.profileImage !== 'default-avatar.png') {
+      return `http://localhost:5000/uploads/profiles/${userData.profileImage}`;
+    }
+    return null;
   };
 
   if (loading) {
@@ -194,6 +268,51 @@ const Profile = () => {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Profile Image Section */}
+          <div className="flex flex-col items-center space-y-4">
+            <div className="relative">
+              <div 
+                className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={handleImageClick}
+              >
+                {getProfileImageUrl() ? (
+                  <img 
+                    src={getProfileImageUrl()} 
+                    alt="Profile" 
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                    <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
+                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    </svg>
+                  </div>
+                )}
+              </div>
+              {uploading && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 rounded-full">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
+                </div>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={handleImageClick}
+              className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              disabled={uploading}
+            >
+              {uploading ? 'Uploading...' : 'Change Profile Picture'}
+            </button>
+            <p className="text-xs text-gray-500">JPG, PNG or GIF (Max 5MB)</p>
+          </div>
+
           {/* Basic Information */}
           <div>
             <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>

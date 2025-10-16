@@ -12,6 +12,10 @@ const cron = require('node-cron');
 // Load environment variables
 dotenv.config();
 
+// Import models to ensure they're registered with Mongoose
+require('./models/Zone');
+require('./models/User');
+
 // Import middleware
 const { errorHandler } = require('./middleware/errorHandler');
 const rateLimiter = require('./middleware/rateLimiter');
@@ -31,6 +35,7 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 const plasticReductionRoutes = require('./routes/plasticReductionRoutes');
 const wasteEntryRoutes = require('./routes/wasteEntryRoutes');
+const appointmentRoutes = require('./routes/appointmentRoutes');
 
 // Import scheduled jobs
 const { scheduleNotifications } = require('./jobs/notificationJobs');
@@ -43,7 +48,7 @@ const server = http.createServer(app);
 // Initialize Socket.io
 const io = socketIo(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:3000',
+    origin: ['http://localhost:3000', 'http://localhost:3001'],
     methods: ['GET', 'POST']
   }
 });
@@ -55,7 +60,7 @@ app.set('io', io);
 app.use(helmet()); // Security headers
 app.use(compression()); // Compress responses
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: ['http://localhost:3000', 'http://localhost:3001'],
   credentials: true
 }));
 app.use(express.json()); // Parse JSON bodies
@@ -121,6 +126,7 @@ app.use(`/api/${API_VERSION}/dashboard`, dashboardRoutes);
 app.use(`/api/${API_VERSION}/notifications`, notificationRoutes);
 app.use(`/api/${API_VERSION}/plastic-suggestions`, plasticReductionRoutes);
 app.use(`/api/${API_VERSION}/waste-entries`, wasteEntryRoutes);
+app.use(`/api/${API_VERSION}/appointments`, appointmentRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

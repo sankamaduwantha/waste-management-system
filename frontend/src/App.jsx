@@ -17,6 +17,7 @@ import ServiceRequests from './pages/resident/ServiceRequests'
 import Payments from './pages/resident/Payments'
 import Profile from './pages/resident/Profile'
 import ResidentPlasticSuggestions from './pages/resident/ResidentPlasticSuggestions'
+import Appointments from './pages/resident/Appointments'
 
 // City Manager pages
 import CityManagerDashboard from './pages/city-manager/Dashboard'
@@ -66,6 +67,7 @@ function App() {
           <Route path="requests" element={<PrivateRoute roles={['resident']}><ServiceRequests /></PrivateRoute>} />
           <Route path="payments" element={<PrivateRoute roles={['resident']}><Payments /></PrivateRoute>} />
           <Route path="profile" element={<PrivateRoute roles={['resident']}><Profile /></PrivateRoute>} />
+          <Route path="appointments" element={<PrivateRoute roles={['resident']}><Appointments /></PrivateRoute>} />
           <Route path="plastic-suggestions" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
           <Route path="plastic-suggestions/:id" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
         </Route>

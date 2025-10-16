@@ -49,10 +49,26 @@ exports.getAllSuggestions = catchAsync(async (req, res, next) => {
  * @access  Public (Residents)
  */
 exports.getSuggestion = catchAsync(async (req, res, next) => {
+  // Validate ID parameter
+  const id = req.params.id;
+  
+  if (!id || id === 'undefined' || id === 'null') {
+    return next(new AppError('Invalid suggestion ID provided', 400));
+  }
+
+  // Check if ID is a valid MongoDB ObjectId
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return next(new AppError('Invalid suggestion ID format', 400));
+  }
+
   const result = await plasticReductionService.getSuggestionById(
-    req.params.id,
+    id,
     true // increment view count
   );
+
+  if (!result || !result.data) {
+    return next(new AppError('Suggestion not found', 404));
+  }
 
   res.status(200).json(result);
 });
@@ -99,6 +115,18 @@ exports.createSuggestion = catchAsync(async (req, res, next) => {
  * @access  Private (Admin/Creator only)
  */
 exports.updateSuggestion = catchAsync(async (req, res, next) => {
+  // Validate ID parameter
+  const id = req.params.id;
+  
+  if (!id || id === 'undefined' || id === 'null') {
+    return next(new AppError('Invalid suggestion ID provided', 400));
+  }
+
+  // Check if ID is a valid MongoDB ObjectId
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return next(new AppError('Invalid suggestion ID format', 400));
+  }
+
   // Only admin, sustainability_manager, or creator can update
   if (!['admin', 'sustainability_manager'].includes(req.user.role)) {
     return next(new AppError('You do not have permission to update suggestions', 403));
@@ -124,7 +152,7 @@ exports.updateSuggestion = catchAsync(async (req, res, next) => {
   );
 
   const result = await plasticReductionService.updateSuggestion(
-    req.params.id,
+    id,
     updateData,
     req.user._id
   );
@@ -138,13 +166,25 @@ exports.updateSuggestion = catchAsync(async (req, res, next) => {
  * @access  Private (Admin/Creator only)
  */
 exports.deleteSuggestion = catchAsync(async (req, res, next) => {
+  // Validate ID parameter
+  const id = req.params.id;
+  
+  if (!id || id === 'undefined' || id === 'null') {
+    return next(new AppError('Invalid suggestion ID provided', 400));
+  }
+
+  // Check if ID is a valid MongoDB ObjectId
+  if (!id.match(/^[0-9a-fA-F]{24}$/)) {
+    return next(new AppError('Invalid suggestion ID format', 400));
+  }
+
   // Only admin, sustainability_manager, or creator can delete
   if (!['admin', 'sustainability_manager'].includes(req.user.role)) {
     return next(new AppError('You do not have permission to delete suggestions', 403));
   }
 
   const result = await plasticReductionService.deleteSuggestion(
-    req.params.id,
+    id,
     req.user._id
   );
 

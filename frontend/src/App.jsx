@@ -45,9 +45,20 @@ import EnvironmentalImpact from './pages/sustainability/EnvironmentalImpact'
 
 // Shared pages
 import NotFound from './pages/NotFound'
+import Home from './pages/Home'
+
+// Public pages
+import AboutUs from './pages/AboutUs'
+import Contact from './pages/Contact'
+import Careers from './pages/Careers'
+import Blog from './pages/Blog'
+import HelpCenter from './pages/HelpCenter'
+import Documentation from './pages/Documentation'
+import TermsOfService from './pages/TermsOfService'
+import PrivacyPolicy from './pages/PrivacyPolicy'
 
 function App() {
-  const { user, checkAuth } = useAuthStore()
+  const { user, checkAuth, isAuthenticated } = useAuthStore()
 
   useEffect(() => {
     checkAuth()
@@ -55,59 +66,61 @@ function App() {
 
   return (
     <Routes>
-      {/* Public routes */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
+      {/* Public Home Page */}
+      <Route path="/" element={!isAuthenticated ? <Home /> : <Navigate to={getRoleRoute(user)} replace />} />
+      
+      {/* Auth routes */}
+      <Route path="/login" element={!isAuthenticated ? <Login /> : <Navigate to={getRoleRoute(user)} replace />} />
+      <Route path="/register" element={!isAuthenticated ? <Register /> : <Navigate to={getRoleRoute(user)} replace />} />
       <Route path="/forgot-password" element={<ForgotPassword />} />
 
-      {/* Protected routes with layout */}
-      <Route path="/" element={<PrivateRoute><Layout /></PrivateRoute>}>
-        {/* Redirect based on role */}
-        <Route index element={<RoleBasedRedirect user={user} />} />
+      {/* Public pages */}
+      <Route path="/about" element={<AboutUs />} />
+      <Route path="/contact" element={<Contact />} />
+      <Route path="/careers" element={<Careers />} />
+      <Route path="/blog" element={<Blog />} />
+      <Route path="/help" element={<HelpCenter />} />
+      <Route path="/documentation" element={<Documentation />} />
+      <Route path="/terms" element={<TermsOfService />} />
+      <Route path="/privacy" element={<PrivacyPolicy />} />
 
+      {/* Protected routes with layout */}
+      <Route element={<PrivateRoute><Layout /></PrivateRoute>}>
         {/* Resident routes */}
-        <Route path="resident">
-          <Route path="dashboard" element={<PrivateRoute roles={['resident']}><ResidentDashboard /></PrivateRoute>} />
-          <Route path="schedule" element={<PrivateRoute roles={['resident']}><CollectionSchedule /></PrivateRoute>} />
-          <Route path="requests" element={<PrivateRoute roles={['resident']}><ServiceRequests /></PrivateRoute>} />
-          <Route path="payments" element={<PrivateRoute roles={['resident']}><Payments /></PrivateRoute>} />
-          <Route path="profile" element={<PrivateRoute roles={['resident']}><ResidentProfile /></PrivateRoute>} />
-          <Route path="appointments" element={<PrivateRoute roles={['resident']}><Appointments /></PrivateRoute>} />
-          <Route path="plastic-suggestions" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
-          <Route path="plastic-suggestions/:id" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
-        </Route>
+        <Route path="/resident/dashboard" element={<PrivateRoute roles={['resident']}><ResidentDashboard /></PrivateRoute>} />
+        <Route path="/resident/schedule" element={<PrivateRoute roles={['resident']}><CollectionSchedule /></PrivateRoute>} />
+        <Route path="/resident/requests" element={<PrivateRoute roles={['resident']}><ServiceRequests /></PrivateRoute>} />
+        <Route path="/resident/payments" element={<PrivateRoute roles={['resident']}><Payments /></PrivateRoute>} />
+        <Route path="/resident/profile" element={<PrivateRoute roles={['resident']}><ResidentProfile /></PrivateRoute>} />
+        <Route path="/resident/appointments" element={<PrivateRoute roles={['resident']}><Appointments /></PrivateRoute>} />
+        <Route path="/resident/plastic-suggestions" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
+        <Route path="/resident/plastic-suggestions/:id" element={<PrivateRoute roles={['resident']}><ResidentPlasticSuggestions /></PrivateRoute>} />
 
         {/* City Manager routes */}
-        <Route path="city-manager">
-          <Route path="dashboard" element={<PrivateRoute roles={['city_manager', 'admin']}><CityManagerDashboard /></PrivateRoute>} />
-          <Route path="fleet" element={<PrivateRoute roles={['city_manager', 'admin']}><FleetManagement /></PrivateRoute>} />
-          <Route path="routes" element={<PrivateRoute roles={['city_manager', 'admin']}><RouteManagement /></PrivateRoute>} />
-          <Route path="bins" element={<PrivateRoute roles={['city_manager', 'admin']}><BinManagement /></PrivateRoute>} />
-          <Route path="requests" element={<PrivateRoute roles={['city_manager', 'admin']}><RequestManagement /></PrivateRoute>} />
-          <Route path="profile" element={<PrivateRoute roles={['city_manager']}><CityManagerProfile /></PrivateRoute>} />
-        </Route>
+        <Route path="/city-manager/dashboard" element={<PrivateRoute roles={['city_manager', 'admin']}><CityManagerDashboard /></PrivateRoute>} />
+        <Route path="/city-manager/fleet" element={<PrivateRoute roles={['city_manager', 'admin']}><FleetManagement /></PrivateRoute>} />
+        <Route path="/city-manager/routes" element={<PrivateRoute roles={['city_manager', 'admin']}><RouteManagement /></PrivateRoute>} />
+        <Route path="/city-manager/bins" element={<PrivateRoute roles={['city_manager', 'admin']}><BinManagement /></PrivateRoute>} />
+        <Route path="/city-manager/requests" element={<PrivateRoute roles={['city_manager', 'admin']}><RequestManagement /></PrivateRoute>} />
+        <Route path="/city-manager/profile" element={<PrivateRoute roles={['city_manager']}><CityManagerProfile /></PrivateRoute>} />
 
         {/* Admin routes */}
-        <Route path="admin">
-          <Route path="dashboard" element={<PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute>} />
-          <Route path="users" element={<PrivateRoute roles={['admin']}><UserManagement /></PrivateRoute>} />
-          <Route path="zones" element={<PrivateRoute roles={['admin']}><ZoneManagement /></PrivateRoute>} />
-          <Route path="settings" element={<PrivateRoute roles={['admin']}><SystemSettings /></PrivateRoute>} />
-          <Route path="profile" element={<PrivateRoute roles={['admin']}><AdminProfile /></PrivateRoute>} />
-        </Route>
+        <Route path="/admin/dashboard" element={<PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute>} />
+        <Route path="/admin/users" element={<PrivateRoute roles={['admin']}><UserManagement /></PrivateRoute>} />
+        <Route path="/admin/zones" element={<PrivateRoute roles={['admin']}><ZoneManagement /></PrivateRoute>} />
+        <Route path="/admin/settings" element={<PrivateRoute roles={['admin']}><SystemSettings /></PrivateRoute>} />
+        <Route path="/admin/profile" element={<PrivateRoute roles={['admin']}><AdminProfile /></PrivateRoute>} />
 
         {/* Sustainability Manager routes */}
-        <Route path="sustainability">
-          <Route path="dashboard" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><SustainabilityDashboard /></PrivateRoute>} />
-          <Route path="analytics" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><Analytics /></PrivateRoute>} />
-          <Route path="reports" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><Reports /></PrivateRoute>} />
-          <Route path="impact" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><EnvironmentalImpact /></PrivateRoute>} />
-          <Route path="profile" element={<PrivateRoute roles={['sustainability_manager']}><SustainabilityManagerProfile /></PrivateRoute>} />
-        </Route>
+        <Route path="/sustainability/dashboard" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><SustainabilityDashboard /></PrivateRoute>} />
+        <Route path="/sustainability/analytics" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><Analytics /></PrivateRoute>} />
+        <Route path="/sustainability/reports" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><Reports /></PrivateRoute>} />
+        <Route path="/sustainability/impact" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><EnvironmentalImpact /></PrivateRoute>} />
+        <Route path="/sustainability/profile" element={<PrivateRoute roles={['sustainability_manager']}><SustainabilityManagerProfile /></PrivateRoute>} />
 
         {/* Plastic Reduction Management (Sustainability Manager CRUD) */}
         <Route 
-          path="sustainability-manager/*" 
+          path="/sustainability-manager/*" 
           element={
             <PrivateRoute roles={['sustainability_manager', 'admin']}>
               <SustainabilityManagerDashboard />
@@ -123,9 +136,9 @@ function App() {
   )
 }
 
-// Helper component for role-based redirect
-function RoleBasedRedirect({ user }) {
-  if (!user) return <Navigate to="/login" replace />
+// Helper function to get role-based route
+function getRoleRoute(user) {
+  if (!user) return '/login'
 
   const roleRoutes = {
     resident: '/resident/dashboard',
@@ -134,7 +147,12 @@ function RoleBasedRedirect({ user }) {
     sustainability_manager: '/sustainability/dashboard',
   }
 
-  return <Navigate to={roleRoutes[user.role] || '/login'} replace />
+  return roleRoutes[user.role] || '/login'
+}
+
+// Helper component for role-based redirect (kept for compatibility if used elsewhere)
+function RoleBasedRedirect({ user }) {
+  return <Navigate to={getRoleRoute(user)} replace />
 }
 
 export default App

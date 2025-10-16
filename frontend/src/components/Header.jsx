@@ -1,16 +1,47 @@
 import { FaBell, FaUserCircle } from 'react-icons/fa'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import useAuthStore from '../store/authStore'
 import { useNavigate } from 'react-router-dom'
 
 const Header = () => {
   const [showProfile, setShowProfile] = useState(false)
+  const [showLogoutConfirm, setShowLogoutConfirm] = useState(false)
   const { user, logout } = useAuthStore()
   const navigate = useNavigate()
 
-  const handleLogout = () => {
+  // Handle escape key to close modal
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape' && showLogoutConfirm) {
+        setShowLogoutConfirm(false)
+      }
+    }
+    
+    if (showLogoutConfirm) {
+      document.addEventListener('keydown', handleEscape)
+      return () => document.removeEventListener('keydown', handleEscape)
+    }
+  }, [showLogoutConfirm])
+
+  const handleLogoutClick = () => {
+    setShowProfile(false)
+    setShowLogoutConfirm(true)
+  }
+
+  const handleConfirmLogout = () => {
+    setShowLogoutConfirm(false)
     logout()
-    navigate('/login')
+    navigate('/')
+  }
+
+  const handleCancelLogout = () => {
+    setShowLogoutConfirm(false)
+  }
+
+  const handleModalBackdropClick = (e) => {
+    if (e.target === e.currentTarget) {
+      setShowLogoutConfirm(false)
+    }
   }
 
   return (
@@ -46,7 +77,7 @@ const Header = () => {
                 <p className="text-xs text-gray-500 capitalize">{user?.role?.replace('_', ' ')}</p>
               </div>
               <button
-                onClick={handleLogout}
+                onClick={handleLogoutClick}
                 className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
               >
                 Logout
@@ -55,6 +86,37 @@ const Header = () => {
           )}
         </div>
       </div>
+
+      {/* Logout Confirmation Modal */}
+      {showLogoutConfirm && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn"
+          onClick={handleModalBackdropClick}
+        >
+          <div className="bg-white rounded-lg shadow-xl p-6 max-w-md w-full mx-4 animate-slideIn">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Confirm Logout
+            </h3>
+            <p className="text-gray-600 mb-6">
+              Are you sure you want to logout? You will need to sign in again to access your account.
+            </p>
+            <div className="flex justify-end space-x-3">
+              <button
+                onClick={handleCancelLogout}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition-colors font-medium"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmLogout}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-medium"
+              >
+                Logout
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </header>
   )
 }

@@ -24,12 +24,14 @@ const Sidebar = () => {
       { name: 'Routes', href: '/city-manager/routes', icon: FaRoute },
       { name: 'Bins', href: '/city-manager/bins', icon: FaTrash },
       { name: 'Requests', href: '/city-manager/requests', icon: FaTasks },
+      { name: 'Profile', href: '/city-manager/profile', icon: FaUser },
     ],
     admin: [
       { name: 'Dashboard', href: '/admin/dashboard', icon: FaHome },
       { name: 'Users', href: '/admin/users', icon: FaUsers },
       { name: 'Zones', href: '/admin/zones', icon: FaMapMarkedAlt },
       { name: 'Settings', href: '/admin/settings', icon: FaCog },
+      { name: 'Profile', href: '/admin/profile', icon: FaUser },
     ],
     sustainability_manager: [
       { name: 'Dashboard', href: '/sustainability/dashboard', icon: FaHome },
@@ -37,6 +39,7 @@ const Sidebar = () => {
       { name: 'Analytics', href: '/sustainability/analytics', icon: FaChartLine },
       { name: 'Reports', href: '/sustainability/reports', icon: FaFileAlt },
       { name: 'Impact', href: '/sustainability/impact', icon: FaLeaf },
+      { name: 'Profile', href: '/sustainability/profile', icon: FaUser },
     ],
   }
 

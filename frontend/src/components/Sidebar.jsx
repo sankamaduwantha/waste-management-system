@@ -75,18 +75,32 @@ const Sidebar = () => {
   return (
     <div className={`flex flex-col bg-white border-r border-gray-200 transition-all duration-300 ${isCollapsed ? 'w-20' : 'w-64'}`}>
       <div className="flex items-center justify-between h-16 border-b border-gray-200 px-4">
-        {!isCollapsed && (
-          <h1 className="text-xl font-bold text-primary-600">
-            🗑️ Waste Manager
-          </h1>
+        {isCollapsed ? (
+          <Link 
+            to="/" 
+            className="text-2xl hover:scale-110 transition-transform cursor-pointer mx-auto"
+            title="Waste Hub - Go to Home"
+          >
+            🗑️
+          </Link>
+        ) : (
+          <Link 
+            to="/" 
+            className="text-xl font-bold text-primary-600 hover:text-primary-700 transition-colors cursor-pointer"
+            title="Go to Home"
+          >
+            🗑️ Waste Hub
+          </Link>
         )}
-        <button
-          onClick={() => setIsCollapsed(!isCollapsed)}
-          className={`p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-primary-600 transition-colors ${isCollapsed ? 'mx-auto' : ''}`}
-          title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isCollapsed ? <FaBars className="h-5 w-5" /> : <FaTimes className="h-5 w-5" />}
-        </button>
+        {!isCollapsed && (
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-primary-600 transition-colors"
+            title="Collapse sidebar"
+          >
+            <FaTimes className="h-5 w-5" />
+          </button>
+        )}
       </div>
       <nav className="flex-1 overflow-y-auto py-4">
         {userNavigation.map((item) => {
@@ -109,6 +123,19 @@ const Sidebar = () => {
           )
         })}
       </nav>
+      
+      {/* Expand button when collapsed */}
+      {isCollapsed && (
+        <div className="border-t border-gray-200 p-4">
+          <button
+            onClick={() => setIsCollapsed(false)}
+            className="w-full p-2 rounded-lg hover:bg-gray-100 text-gray-600 hover:text-primary-600 transition-colors"
+            title="Expand sidebar"
+          >
+            <FaBars className="h-5 w-5 mx-auto" />
+          </button>
+        </div>
+      )}
     </div>
   )
 }

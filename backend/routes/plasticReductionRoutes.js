@@ -49,13 +49,6 @@ router.get('/search', plasticReductionController.searchSuggestions);
 router.get('/category/:category', plasticReductionController.getSuggestionsByCategory);
 
 /**
- * @route   GET /api/v1/plastic-suggestions/:id
- * @desc    Get single suggestion by ID
- * @access  Public
- */
-router.get('/:id', plasticReductionController.getSuggestion);
-
-/**
  * @route   GET /api/v1/plastic-suggestions
  * @desc    Get all suggestions with filters and pagination
  * @access  Public
@@ -69,6 +62,13 @@ router.get('/:id', plasticReductionController.getSuggestion);
  * @query   sortBy - Sort field (default: -impactScore)
  */
 router.get('/', plasticReductionController.getAllSuggestions);
+
+/**
+ * @route   GET /api/v1/plastic-suggestions/:id
+ * @desc    Get single suggestion by ID
+ * @access  Public
+ */
+router.get('/:id', plasticReductionController.getSuggestion);
 
 // ==================== PROTECTED ROUTES ====================
 // All routes below require authentication

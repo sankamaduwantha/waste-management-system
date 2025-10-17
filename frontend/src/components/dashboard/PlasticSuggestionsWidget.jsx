@@ -115,12 +115,16 @@ const PlasticSuggestionsWidget = () => {
                 </div>
               </div>
               <div className="mt-3 pt-3 border-t border-gray-200">
-                <Link
-                  to={`/resident/plastic-suggestions/${suggestion._id}`}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center"
-                >
-                  Learn More <FaArrowRight className="ml-1 h-3 w-3" />
-                </Link>
+                {suggestion._id ? (
+                  <Link
+                    to={`/resident/plastic-suggestions/${suggestion._id}`}
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center"
+                  >
+                    Learn More <FaArrowRight className="ml-1 h-3 w-3" />
+                  </Link>
+                ) : (
+                  <span className="text-sm text-gray-400">Details not available</span>
+                )}
               </div>
             </div>
           ))}

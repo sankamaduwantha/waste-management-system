@@ -3,7 +3,8 @@ import { useState } from 'react'
 import { 
   FaHome, FaCalendar, FaClipboardList, FaCreditCard, FaUser,
   FaTruck, FaRoute, FaTrash, FaTasks, FaUsers, FaMapMarkedAlt,
-  FaCog, FaChartLine, FaFileAlt, FaLeaf, FaBars, FaTimes, FaTrophy, FaGift, FaUserTie 
+  FaCog, FaChartLine, FaFileAlt, FaLeaf, FaBars, FaTimes, FaTrophy, FaGift, FaUserTie,
+  FaQrcode, FaExclamationTriangle, FaTachometerAlt
 } from 'react-icons/fa'
 import useAuthStore from '../store/authStore'
 
@@ -33,8 +34,19 @@ const Sidebar = () => {
     ],
     admin: [
       { name: 'Dashboard', href: '/admin/dashboard', icon: FaHome },
-      { name: 'Users', href: '/admin/users', icon: FaUsers },
-      { name: 'Zones', href: '/admin/zones', icon: FaMapMarkedAlt },
+      { name: 'User Management', href: '/admin/users', icon: FaUsers },
+      { name: 'Zone Management', href: '/admin/zones', icon: FaMapMarkedAlt },
+      { name: 'Zone Assignment', href: '/admin/zone-assignment', icon: FaMapMarkedAlt },
+      { name: 'Appointments', href: '/admin/appointments', icon: FaCalendar },
+      { name: 'Fleet Management', href: '/admin/fleet', icon: FaTruck },
+      { name: 'Drivers', href: '/admin/drivers', icon: FaUserTie },
+      { name: 'Routes', href: '/admin/routes', icon: FaRoute },
+      { name: 'Bins', href: '/admin/bins', icon: FaTrash },
+      { name: 'Service Requests', href: '/admin/requests', icon: FaTasks },
+      { name: 'Collectors', href: '/admin/collectors', icon: FaQrcode },
+      { name: 'Sustainability', href: '/admin/sustainability', icon: FaLeaf },
+      { name: 'Payments', href: '/admin/payments', icon: FaCreditCard },
+      { name: 'Reports', href: '/admin/reports', icon: FaFileAlt },
       { name: 'Settings', href: '/admin/settings', icon: FaCog },
       { name: 'Profile', href: '/admin/profile', icon: FaUser },
     ],
@@ -48,6 +60,13 @@ const Sidebar = () => {
       { name: 'Reports', href: '/sustainability/reports', icon: FaFileAlt },
       { name: 'Impact', href: '/sustainability/impact', icon: FaLeaf },
       { name: 'Profile', href: '/sustainability/profile', icon: FaUser },
+    ],
+    garbage_collector: [
+      { name: 'Dashboard', href: '/collector/dashboard', icon: FaHome },
+      { name: 'My Route', href: '/collector/route', icon: FaRoute },
+      { name: 'QR Scanner', href: '/collector/scanner', icon: FaQrcode },
+      { name: 'Report Issue', href: '/collector/report-issue', icon: FaExclamationTriangle },
+      { name: 'Performance', href: '/collector/performance', icon: FaTachometerAlt },
     ],
   }
 

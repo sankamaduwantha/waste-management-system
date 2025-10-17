@@ -43,7 +43,7 @@ const appointmentSchema = new mongoose.Schema(
     zone: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Zone',
-      required: [true, 'Zone is required'],
+      required: false, // Zone is now optional
       index: true,
     },
 

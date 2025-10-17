@@ -111,7 +111,9 @@ exports.login = async (req, res, next) => {
 // @access  Private
 exports.getMe = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).populate('zone');
+    // req.user is set by protect middleware but without populated zone
+    // Fetch fresh user data with populated zone
+    const user = await User.findById(req.user._id).populate('zone');
     
     // If resident, get resident profile
     let residentProfile = null;
@@ -127,6 +129,58 @@ exports.getMe = async (req, res, next) => {
         user,
         residentProfile
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+// @desc    Update user profile
+// @route   PUT /api/v1/auth/profile
+// @access  Private
+exports.updateProfile = async (req, res, next) => {
+  try {
+    const { name, phone, address, preferences, zone, householdSize, propertyType, specialRequirements } = req.body;
+
+    // Fields that can be updated
+    const fieldsToUpdate = {};
+    if (name) fieldsToUpdate.name = name;
+    if (phone) fieldsToUpdate.phone = phone;
+    if (address) fieldsToUpdate.address = address;
+    if (preferences) fieldsToUpdate.preferences = preferences;
+    if (zone) fieldsToUpdate.zone = zone;
+
+    const user = await User.findByIdAndUpdate(
+      req.user._id,
+      fieldsToUpdate,
+      {
+        new: true,
+        runValidators: true
+      }
+    ).populate('zone');
+
+    // If resident, update resident profile
+    let residentProfile = null;
+    if (user.role === 'resident') {
+      const residentUpdate = {};
+      if (householdSize) residentUpdate.householdSize = householdSize;
+      if (propertyType) residentUpdate.propertyType = propertyType;
+      if (specialRequirements !== undefined) residentUpdate.specialRequirements = specialRequirements;
+
+      if (Object.keys(residentUpdate).length > 0) {
+        residentProfile = await Resident.findOneAndUpdate(
+          { user: user._id },
+          residentUpdate,
+          { new: true, runValidators: true }
+        );
+      } else {
+        residentProfile = await Resident.findOne({ user: user._id });
+      }
+    }
+
+    res.status(200).json({
+      status: 'success',
+      data: { user, residentProfile }
     });
   } catch (error) {
     next(error);
@@ -233,7 +287,7 @@ exports.resetPassword = async (req, res, next) => {
 // @access  Private
 exports.updatePassword = async (req, res, next) => {
   try {
-    const user = await User.findById(req.user.id).select('+password');
+    const user = await User.findById(req.user._id).select('+password');
 
     // Check current password
     if (!(await user.matchPassword(req.body.currentPassword))) {
@@ -268,7 +322,7 @@ exports.updateProfile = async (req, res, next) => {
 
     // Update user
     const user = await User.findByIdAndUpdate(
-      req.user.id,
+      req.user._id,
       fieldsToUpdate,
       {
         new: true,
@@ -328,7 +382,7 @@ exports.uploadProfileImage = async (req, res, next) => {
     }
 
     // Delete old profile image if exists
-    const user = await User.findById(req.user.id);
+    const user = await User.findById(req.user._id);
     if (user.profileImage && user.profileImage !== 'default-avatar.png') {
       const fs = require('fs');
       const path = require('path');

@@ -58,8 +58,16 @@ exports.getAvailability = catchAsync(async (req, res, next) => {
     zone = await getZoneForUser(req.user);
   }
 
+  // If no zone, return empty slots (zone is now optional)
   if (!zone) {
-    return next(new AppError('Zone information is missing. Please contact admin to assign your zone.', 400));
+    return res.status(200).json({
+      success: true,
+      data: {
+        date,
+        zone: null,
+        slots: [],
+      },
+    });
   }
 
   const availability = await availabilityService.getAvailableSlots(zone, date);
@@ -88,8 +96,12 @@ exports.getAvailableDates = catchAsync(async (req, res, next) => {
     zone = await getZoneForUser(req.user);
   }
 
+  // If no zone, return empty dates (zone is now optional)
   if (!zone) {
-    return next(new AppError('Zone information is missing. Please contact admin to assign your zone.', 400));
+    return res.status(200).json({
+      success: true,
+      data: { dates: [] },
+    });
   }
 
   const dates = await availabilityService.getAvailableDates(zone, parseInt(days));
@@ -108,13 +120,13 @@ exports.getAvailableDates = catchAsync(async (req, res, next) => {
 exports.createAppointment = catchAsync(async (req, res, next) => {
   const residentId = req.user.resident || req.user._id;
 
-  // Add zone if not provided
+  // Add zone if not provided (zone is now optional)
   if (!req.body.zone) {
     const zone = await getZoneForUser(req.user);
-    if (!zone) {
-      return next(new AppError('Zone information is missing. Please contact admin to assign your zone.', 400));
+    if (zone) {
+      req.body.zone = zone;
     }
-    req.body.zone = zone;
+    // If no zone, appointment will be created without zone
   }
 
   const appointment = await appointmentService.createAppointment(
@@ -148,10 +160,12 @@ exports.getMyAppointments = catchAsync(async (req, res, next) => {
 /**
  * Get appointment details
  * @route GET /api/v1/appointments/:id
- * @access Private (Resident/Admin)
+ * @access Private (Resident/Admin/City Manager)
  */
 exports.getAppointmentDetails = catchAsync(async (req, res, next) => {
-  const residentId = req.user.resident || req.user._id;
+  // Admins and city managers can view any appointment
+  const isAdminOrManager = ['admin', 'city_manager'].includes(req.user.role);
+  const residentId = isAdminOrManager ? null : (req.user.resident || req.user._id);
 
   const appointment = await appointmentService.getAppointmentDetails(
     req.params.id,
@@ -167,10 +181,12 @@ exports.getAppointmentDetails = catchAsync(async (req, res, next) => {
 /**
  * Update appointment
  * @route PATCH /api/v1/appointments/:id
- * @access Private (Resident)
+ * @access Private (Resident/Admin/City Manager)
  */
 exports.updateAppointment = catchAsync(async (req, res, next) => {
-  const residentId = req.user.resident || req.user._id;
+  // Admins and city managers can update any appointment
+  const isAdminOrManager = ['admin', 'city_manager'].includes(req.user.role);
+  const residentId = isAdminOrManager ? null : (req.user.resident || req.user._id);
 
   const appointment = await appointmentService.updateAppointment(
     req.params.id,
@@ -188,10 +204,12 @@ exports.updateAppointment = catchAsync(async (req, res, next) => {
 /**
  * Cancel appointment
  * @route DELETE /api/v1/appointments/:id
- * @access Private (Resident)
+ * @access Private (Resident/Admin/City Manager)
  */
 exports.cancelAppointment = catchAsync(async (req, res, next) => {
-  const residentId = req.user.resident || req.user._id;
+  // Admins and city managers can cancel any appointment
+  const isAdminOrManager = ['admin', 'city_manager'].includes(req.user.role);
+  const residentId = isAdminOrManager ? null : (req.user.resident || req.user._id);
   const { reason } = req.body;
 
   if (!reason) {
@@ -324,8 +342,13 @@ exports.getNextAvailableSlot = catchAsync(async (req, res, next) => {
   const { zoneId, afterDate } = req.query;
   const zone = zoneId || req.user.zone;
 
+  // If no zone, return null slot (zone is now optional)
   if (!zone) {
-    return next(new AppError('Zone information is missing', 400));
+    return res.status(200).json({
+      success: true,
+      data: { slot: null },
+      message: 'Zone not configured. Please set your zone in profile for better service.',
+    });
   }
 
   const slot = await availabilityService.findNextAvailableSlot(

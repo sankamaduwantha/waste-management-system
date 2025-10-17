@@ -7,6 +7,7 @@
 
 import { useState, useEffect } from 'react';
 import usePerformanceStore from '../../store/performanceStore';
+import { showInfoToast } from '../../components/common/ToastContainer';
 import {
   FaChartLine, FaTrophy, FaLeaf, FaUsers, FaFire,
   FaRecycle, FaFilter, FaDownload, FaSync
@@ -60,7 +61,7 @@ const AnalyticsDashboard = () => {
 
   const handleExport = () => {
     // TODO: Implement export functionality
-    alert('Export functionality coming soon!');
+    showInfoToast('Export functionality coming soon!');
   };
 
   // Chart colors

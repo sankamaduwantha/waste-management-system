@@ -79,7 +79,7 @@ router.post('/', appointmentController.createAppointment);
 /**
  * @route   GET /api/v1/appointments/:id
  * @desc    Get appointment details
- * @access  Private (Resident/Admin)
+ * @access  Private (Resident/Admin/City Manager)
  * @params  {string} id - Appointment ID
  */
 router.get('/:id', appointmentController.getAppointmentDetails);
@@ -87,7 +87,7 @@ router.get('/:id', appointmentController.getAppointmentDetails);
 /**
  * @route   PATCH /api/v1/appointments/:id
  * @desc    Update/reschedule appointment
- * @access  Private (Resident)
+ * @access  Private (Resident/Admin/City Manager)
  * @params  {string} id - Appointment ID
  * @body    {Object} updateData - Fields to update
  */
@@ -96,7 +96,7 @@ router.patch('/:id', appointmentController.updateAppointment);
 /**
  * @route   DELETE /api/v1/appointments/:id
  * @desc    Cancel appointment
- * @access  Private (Resident)
+ * @access  Private (Resident/Admin/City Manager)
  * @params  {string} id - Appointment ID
  * @body    {string} reason - Cancellation reason
  */

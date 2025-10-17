@@ -45,13 +45,13 @@ exports.scheduleNotifications = () => {
         }
       }
       
-      console.log('Collection reminders sent successfully');
+       console.log('Collection reminders sent successfully');
     } catch (error) {
       console.error('Error sending collection reminders:', error);
     }
   });
   
-  console.log('✅ Notification scheduler started');
+   console.log('Notification scheduler started');
 };
 
 // Send payment reminders (runs on 1st and 15th of each month at 9 AM)

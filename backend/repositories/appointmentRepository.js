@@ -443,7 +443,7 @@ class AppointmentRepository {
       const matchStage = {};
 
       if (filters.zone) {
-        matchStage.zone = mongoose.Types.ObjectId(filters.zone);
+        matchStage.zone = new mongoose.Types.ObjectId(filters.zone);
       }
 
       if (filters.startDate || filters.endDate) {

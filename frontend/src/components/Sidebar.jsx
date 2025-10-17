@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { 
   FaHome, FaCalendar, FaClipboardList, FaCreditCard, FaUser,
   FaTruck, FaRoute, FaTrash, FaTasks, FaUsers, FaMapMarkedAlt,
-  FaCog, FaChartLine, FaFileAlt, FaLeaf, FaBars, FaTimes 
+  FaCog, FaChartLine, FaFileAlt, FaLeaf, FaBars, FaTimes, FaTrophy, FaGift 
 } from 'react-icons/fa'
 import useAuthStore from '../store/authStore'
 
@@ -18,6 +18,7 @@ const Sidebar = () => {
       { name: 'Schedule', href: '/resident/schedule', icon: FaCalendar },
       { name: 'Service Requests', href: '/resident/requests', icon: FaClipboardList },
       { name: 'Payments', href: '/resident/payments', icon: FaCreditCard },
+      { name: 'Performance', href: '/resident/performance', icon: FaChartLine },
       { name: 'Profile', href: '/resident/profile', icon: FaUser },
     ],
     city_manager: [
@@ -36,9 +37,12 @@ const Sidebar = () => {
       { name: 'Profile', href: '/admin/profile', icon: FaUser },
     ],
     sustainability_manager: [
-      { name: 'Dashboard', href: '/sustainability/dashboard', icon: FaHome },
+      { name: 'Dashboard', href: '/sustainability-manager/dashboard', icon: FaHome },
+      { name: 'Task Management', href: '/sustainability-manager/tasks', icon: FaTasks },
       { name: 'Plastic Management', href: '/sustainability-manager', icon: FaLeaf },
-      { name: 'Analytics', href: '/sustainability/analytics', icon: FaChartLine },
+      { name: 'Reward System', href: '/sustainability-manager/rewards', icon: FaGift },
+      { name: 'Performance', href: '/sustainability-manager/performance', icon: FaChartLine },
+      { name: 'Leaderboard', href: '/sustainability/leaderboard', icon: FaTrophy },
       { name: 'Reports', href: '/sustainability/reports', icon: FaFileAlt },
       { name: 'Impact', href: '/sustainability/impact', icon: FaLeaf },
       { name: 'Profile', href: '/sustainability/profile', icon: FaUser },

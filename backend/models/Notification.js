@@ -18,6 +18,12 @@ const notificationSchema = new mongoose.Schema({
       'system_announcement',
       'bin_full',
       'schedule_change',
+      'task_assignment',
+      'task_update',
+      'task_completion',
+      'task_verification',
+      'task_rejection',
+      'task_cancellation',
       'other'
     ],
     required: true

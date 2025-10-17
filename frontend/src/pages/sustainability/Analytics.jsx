@@ -1,5 +1,7 @@
-const Analytics = () => {
-  return <div className="card"><h1 className="text-2xl font-bold">Analytics</h1></div>
-}
+import AnalyticsDashboard from '../sustainability-manager/AnalyticsDashboard';
 
-export default Analytics
+const Analytics = () => {
+  return <AnalyticsDashboard />;
+};
+
+export default Analytics;

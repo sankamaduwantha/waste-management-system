@@ -22,14 +22,29 @@ const ResidentPlasticSuggestions = () => {
     setFilters,
   } = usePlasticSuggestionsStore();
 
+  // Redirect if ID is invalid
   useEffect(() => {
-    if (id) {
-      fetchSuggestionById(id);
-    } else {
+    if (id && (id === 'undefined' || id === 'null' || id === '')) {
+      console.warn('Invalid suggestion ID in URL, redirecting to list view');
+      navigate('/resident/plastic-suggestions', { replace: true });
+    }
+  }, [id, navigate]);
+
+  useEffect(() => {
+    if (id && id !== 'undefined' && id !== 'null') {
+      // Only fetch single suggestion if id is provided and valid
+      fetchSuggestionById(id).catch((error) => {
+        console.error('Error fetching suggestion:', error);
+        // Redirect to list view if suggestion not found
+        navigate('/resident/plastic-suggestions', { replace: true });
+      });
+    } else if (!id) {
+      // Fetch all suggestions and statistics for list view
       fetchSuggestions();
       fetchStatistics();
     }
-  }, [id, fetchSuggestions, fetchSuggestionById, fetchStatistics]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]); // Only re-run when id changes
 
   const handleCategoryChange = (category) => {
     setSelectedCategory(category);
@@ -59,6 +74,13 @@ const ResidentPlasticSuggestions = () => {
 
   const handleViewDetails = (suggestion) => {
     const suggestionId = typeof suggestion === 'string' ? suggestion : suggestion._id;
+    
+    // Validate ID before navigation
+    if (!suggestionId || suggestionId === 'undefined' || suggestionId === 'null') {
+      console.error('Invalid suggestion ID:', suggestionId);
+      return;
+    }
+    
     navigate(`/resident/plastic-suggestions/${suggestionId}`);
   };
 
@@ -200,16 +222,19 @@ const ResidentPlasticSuggestions = () => {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {suggestions.map((suggestion) => (
-            <PlasticSuggestionCard
-              key={suggestion._id}
-              suggestion={suggestion}
-              onImplement={handleImplement}
-              onViewDetails={handleViewDetails}
-              showActions={true}
-              compact={true}
-            />
-          ))}
+          {suggestions
+            .filter(suggestion => suggestion && suggestion._id) // Filter out invalid suggestions
+            .map((suggestion, index) => (
+              <PlasticSuggestionCard
+                key={suggestion._id}
+                suggestion={suggestion}
+                onImplement={handleImplement}
+                onViewDetails={handleViewDetails}
+                showActions={true}
+                compact={true}
+              />
+            ))
+          }
         </div>
       )}
     </div>

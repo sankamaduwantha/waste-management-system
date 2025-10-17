@@ -30,8 +30,12 @@ const Header = () => {
 
   const handleConfirmLogout = () => {
     setShowLogoutConfirm(false)
+    // Call logout first to clear auth state
     logout()
-    navigate('/')
+    // Navigate to home page after logout
+    setTimeout(() => {
+      navigate('/', { replace: true })
+    }, 100)
   }
 
   const handleCancelLogout = () => {

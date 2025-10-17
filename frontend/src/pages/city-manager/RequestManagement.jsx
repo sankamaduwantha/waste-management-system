@@ -62,9 +62,12 @@ const RequestManagement = () => {
         `${API_URL}?search=${searchTerm}&status=${filterStatus}&priority=${filterPriority}&type=${filterType}&zone=${filterZone}`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      setRequests(response.data.data);
+      // Handle different possible response structures
+      const requestData = response.data.data || response.data || [];
+      setRequests(Array.isArray(requestData) ? requestData : []);
     } catch (error) {
       console.error('Failed to fetch requests:', error);
+      setRequests([]); // Ensure requests is always an array
     }
   };
 
@@ -86,9 +89,12 @@ const RequestManagement = () => {
       const response = await axios.get(`${USER_API_URL}?role=garbage_collector&limit=100`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUsers(response.data.data || []);
+      // Handle different possible response structures
+      const userData = response.data.data?.users || response.data.data || response.data || [];
+      setUsers(Array.isArray(userData) ? userData : []);
     } catch (error) {
       console.error('Failed to fetch users:', error);
+      setUsers([]); // Ensure users is always an array
     }
   };
 
@@ -98,9 +104,12 @@ const RequestManagement = () => {
       const response = await axios.get(`${VEHICLE_API_URL}?limit=100`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setVehicles(response.data.data || []);
+      // Handle different possible response structures
+      const vehicleData = response.data.data?.vehicles || response.data.data || response.data || [];
+      setVehicles(Array.isArray(vehicleData) ? vehicleData : []);
     } catch (error) {
       console.error('Failed to fetch vehicles:', error);
+      setVehicles([]); // Ensure vehicles is always an array
     }
   };
 
@@ -110,9 +119,12 @@ const RequestManagement = () => {
       const response = await axios.get(ZONE_API_URL, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setZones(response.data.data);
+      // Handle different possible response structures
+      const zoneData = response.data.data || response.data || [];
+      setZones(Array.isArray(zoneData) ? zoneData : []);
     } catch (error) {
       console.error('Failed to fetch zones:', error);
+      setZones([]); // Ensure zones is always an array
     }
   };
 

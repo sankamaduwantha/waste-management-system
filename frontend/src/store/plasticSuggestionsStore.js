@@ -127,6 +127,14 @@ const usePlasticSuggestionsStore = create(
        * @param {string} id - Suggestion ID
        */
       fetchSuggestionById: async (id) => {
+        // Validate ID before making API call
+        if (!id || id === 'undefined' || id === 'null') {
+          const errorMessage = 'Invalid suggestion ID provided';
+          set({ error: errorMessage, loading: false });
+          console.error('fetchSuggestionById called with invalid ID:', id);
+          throw new Error(errorMessage);
+        }
+        
         set({ loading: true, error: null });
         
         try {

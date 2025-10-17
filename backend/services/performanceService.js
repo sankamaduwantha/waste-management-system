@@ -35,7 +35,7 @@ exports.generatePerformanceReport = async (residentId, period = 'monthly') => {
  */
 exports.getPerformanceReport = async (reportId) => {
   const report = await PerformanceReport.findById(reportId)
-    .populate('resident', 'user zone address')
+    .populate('resident', 'user address')
     .populate({
       path: 'resident',
       populate: {
@@ -89,7 +89,7 @@ exports.getPerformanceReports = async (filters = {}) => {
   const skip = (page - 1) * limit;
 
   const reports = await PerformanceReport.find(query)
-    .populate('resident', 'user zone address')
+    .populate('resident', 'user address')
     .populate({
       path: 'resident',
       populate: {
@@ -172,7 +172,7 @@ exports.getResidentAnalytics = async (residentId, period = 'monthly') => {
     'reportPeriod.type': period
   })
     .sort('-reportPeriod.startDate')
-    .populate('resident', 'user zone');
+    .populate('resident', 'user');
 
   if (!latestReport) {
     // Generate one if doesn't exist

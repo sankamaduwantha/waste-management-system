@@ -35,6 +35,19 @@ import UserManagement from './pages/admin/UserManagement'
 import ZoneManagement from './pages/admin/ZoneManagement'
 import SystemSettings from './pages/admin/SystemSettings'
 import AdminProfile from './pages/admin/Profile'
+import ZoneAssignment from './pages/admin/ZoneAssignment'
+import AppointmentsManagement from './pages/admin/AppointmentsManagement'
+import CollectorsManagement from './pages/admin/CollectorsManagement'
+import PaymentsManagement from './pages/admin/PaymentsManagement'
+import ReportsManagement from './pages/admin/ReportsManagement'
+import AdminSustainabilityDashboard from './pages/admin/SustainabilityDashboard'
+
+// Garbage Collector pages
+import GarbageCollectorDashboard from './pages/garbage-collector/Dashboard'
+import Scanner from './pages/garbage-collector/Scanner'
+import CollectorRouteManagement from './pages/garbage-collector/RouteManagement'
+import IssueReporting from './pages/garbage-collector/IssueReporting'
+import Performance from './pages/garbage-collector/Performance'
 
 // Sustainability Manager pages (import at top)
 import SustainabilityManagerProfile from './pages/sustainability-manager/Profile'
@@ -64,15 +77,24 @@ import Documentation from './pages/Documentation'
 import TermsOfService from './pages/TermsOfService'
 import PrivacyPolicy from './pages/PrivacyPolicy'
 
+// Toast notifications
+import ToastContainer from './components/common/ToastContainer'
+
 function App() {
   const { user, checkAuth, isAuthenticated } = useAuthStore()
 
   useEffect(() => {
+    // Log what's in localStorage
+    const stored = localStorage.getItem('auth-storage')
+    console.log('💾 localStorage auth-storage:', stored ? JSON.parse(stored) : 'empty')
+    console.log('🔐 App mounted - Current user zone:', user?.zone)
     checkAuth()
   }, [checkAuth])
 
   return (
-    <Routes>
+    <>
+      <ToastContainer />
+      <Routes>
       {/* Public Home Page */}
       <Route path="/" element={!isAuthenticated ? <Home /> : <Navigate to={getRoleRoute(user)} replace />} />
       
@@ -118,8 +140,26 @@ function App() {
         <Route path="/admin/dashboard" element={<PrivateRoute roles={['admin']}><AdminDashboard /></PrivateRoute>} />
         <Route path="/admin/users" element={<PrivateRoute roles={['admin']}><UserManagement /></PrivateRoute>} />
         <Route path="/admin/zones" element={<PrivateRoute roles={['admin']}><ZoneManagement /></PrivateRoute>} />
+        <Route path="/admin/zone-assignment" element={<PrivateRoute roles={['admin']}><ZoneAssignment /></PrivateRoute>} />
+        <Route path="/admin/appointments" element={<PrivateRoute roles={['admin']}><AppointmentsManagement /></PrivateRoute>} />
+        <Route path="/admin/fleet" element={<PrivateRoute roles={['admin']}><FleetManagement /></PrivateRoute>} />
+        <Route path="/admin/drivers" element={<PrivateRoute roles={['admin']}><DriverManagement /></PrivateRoute>} />
+        <Route path="/admin/routes" element={<PrivateRoute roles={['admin']}><RouteManagement /></PrivateRoute>} />
+        <Route path="/admin/bins" element={<PrivateRoute roles={['admin']}><BinManagement /></PrivateRoute>} />
+        <Route path="/admin/requests" element={<PrivateRoute roles={['admin']}><RequestManagement /></PrivateRoute>} />
+        <Route path="/admin/collectors" element={<PrivateRoute roles={['admin']}><CollectorsManagement /></PrivateRoute>} />
+        <Route path="/admin/sustainability" element={<PrivateRoute roles={['admin']}><AdminSustainabilityDashboard /></PrivateRoute>} />
+        <Route path="/admin/payments" element={<PrivateRoute roles={['admin']}><PaymentsManagement /></PrivateRoute>} />
+        <Route path="/admin/reports" element={<PrivateRoute roles={['admin']}><ReportsManagement /></PrivateRoute>} />
         <Route path="/admin/settings" element={<PrivateRoute roles={['admin']}><SystemSettings /></PrivateRoute>} />
         <Route path="/admin/profile" element={<PrivateRoute roles={['admin']}><AdminProfile /></PrivateRoute>} />
+
+        {/* Garbage Collector routes */}
+        <Route path="/collector/dashboard" element={<PrivateRoute roles={['garbage_collector']}><GarbageCollectorDashboard /></PrivateRoute>} />
+        <Route path="/collector/scanner" element={<PrivateRoute roles={['garbage_collector']}><Scanner /></PrivateRoute>} />
+        <Route path="/collector/route" element={<PrivateRoute roles={['garbage_collector']}><CollectorRouteManagement /></PrivateRoute>} />
+        <Route path="/collector/report-issue" element={<PrivateRoute roles={['garbage_collector']}><IssueReporting /></PrivateRoute>} />
+        <Route path="/collector/performance" element={<PrivateRoute roles={['garbage_collector']}><Performance /></PrivateRoute>} />
 
         {/* Sustainability Manager routes */}
         <Route path="/sustainability/dashboard" element={<PrivateRoute roles={['sustainability_manager', 'admin']}><SustainabilityDashboard /></PrivateRoute>} />
@@ -155,7 +195,7 @@ function App() {
       {/* 404 */}
       <Route path="*" element={<NotFound />} />
     </Routes>
-    
+    </>
   )
 }
 
@@ -168,6 +208,7 @@ function getRoleRoute(user) {
     city_manager: '/city-manager/dashboard',
     admin: '/admin/dashboard',
     sustainability_manager: '/sustainability/dashboard',
+    garbage_collector: '/collector/dashboard',
   }
 
   return roleRoutes[user.role] || '/login'

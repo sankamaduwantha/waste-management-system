@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import useTaskStore from '../../store/taskStore';
 import TaskForm from '../../components/tasks/TaskForm';
 import BulkTaskAssignment from '../../components/tasks/BulkTaskAssignment';
+import { showSuccessToast, showErrorToast, showWarningToast } from '../../components/common/ToastContainer';
 import { 
   FaPlus, FaTasks, FaCheckCircle, FaClock, FaTimesCircle,
   FaFilter, FaSearch, FaChartBar, FaUsers
@@ -100,7 +101,7 @@ const TaskManagement = () => {
 
   const handleReject = async () => {
     if (!rejectionReason.trim()) {
-      alert('Please provide a rejection reason');
+      showWarningToast('Please provide a rejection reason');
       return;
     }
     try {

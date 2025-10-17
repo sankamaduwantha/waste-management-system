@@ -11,6 +11,7 @@ const Profile = () => {
   const [isEditing, setIsEditing] = useState(false);
   const [userData, setUserData] = useState(null);
   const [residentData, setResidentData] = useState(null);
+  const [zones, setZones] = useState([]);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -18,6 +19,7 @@ const Profile = () => {
     name: '',
     email: '',
     phone: '',
+    zone: '',
     address: {
       street: '',
       city: '',
@@ -37,7 +39,17 @@ const Profile = () => {
 
   useEffect(() => {
     fetchProfile();
+    fetchZones();
   }, []);
+
+  const fetchZones = async () => {
+    try {
+      const response = await api.get('/zones/list/active');
+      setZones(response.data.data || []);
+    } catch (error) {
+      console.error('Error fetching zones:', error);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -56,6 +68,7 @@ const Profile = () => {
         name: user.name || '',
         email: user.email || '',
         phone: user.phone || '',
+        zone: user.zone?._id || user.zone || '',
         address: {
           street: user.address?.street || '',
           city: user.address?.city || '',
@@ -116,8 +129,13 @@ const Profile = () => {
       const response = await api.put('/auth/update-profile', formData);
       
       const { user, residentProfile } = response.data.data;
+      console.log('📝 Profile update response - user zone:', user?.zone);
       setUserData(user);
       setResidentData(residentProfile);
+      
+      // Update auth store with the new user data (including zone)
+      setUser(user);
+      console.log('✅ Auth store updated with zone:', user?.zone);
       
       setIsEditing(false);
       toast.success('Profile updated successfully!');
@@ -136,6 +154,7 @@ const Profile = () => {
         name: userData.name || '',
         email: userData.email || '',
         phone: userData.phone || '',
+        zone: userData.zone?._id || userData.zone || '',
         address: {
           street: userData.address?.street || '',
           city: userData.address?.city || '',
@@ -216,10 +235,21 @@ const Profile = () => {
   };
 
   const getProfileImageUrl = () => {
+    // Priority: preview > uploaded image > fallback
     if (imagePreview) return imagePreview;
-    if (userData?.profileImage && userData.profileImage !== 'default-avatar.png') {
+    
+    if (userData?.profileImage) {
+      // Check if it's a full URL or just a filename
+      if (userData.profileImage.startsWith('http')) {
+        return userData.profileImage;
+      }
+      // Don't show default avatar
+      if (userData.profileImage === 'default-avatar.png' || userData.profileImage === 'default.png') {
+        return null;
+      }
       return `http://localhost:5000/uploads/profiles/${userData.profileImage}`;
     }
+    
     return null;
   };
 
@@ -272,7 +302,7 @@ const Profile = () => {
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
               <div 
-                className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
+                className="w-32 h-32 rounded-full overflow-hidden bg-gradient-to-br from-primary-400 to-primary-600 cursor-pointer hover:opacity-80 transition-opacity shadow-lg"
                 onClick={handleImageClick}
               >
                 {getProfileImageUrl() ? (
@@ -281,12 +311,14 @@ const Profile = () => {
                     alt="Profile" 
                     className="w-full h-full object-cover"
                     onError={(e) => {
+                      // On error, hide the image and show the SVG avatar
                       e.target.style.display = 'none';
-                      e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg></div>';
                     }}
                   />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center text-gray-400">
+                ) : null}
+                {/* Always show SVG avatar as background if no image or image failed to load */}
+                {!getProfileImageUrl() && (
+                  <div className="w-full h-full flex items-center justify-center text-white">
                     <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
                     </svg>
@@ -312,7 +344,7 @@ const Profile = () => {
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               disabled={uploading}
             >
-              {uploading ? 'Uploading...' : 'Change Profile Picture'}
+              {uploading ? 'Uploading...' : getProfileImageUrl() ? 'Change Profile Picture' : 'Upload Profile Picture'}
             </button>
             <p className="text-xs text-gray-500">JPG, PNG or GIF (Max 5MB)</p>
           </div>
@@ -367,6 +399,29 @@ const Profile = () => {
                   disabled={true}
                   className="input-field bg-gray-100 cursor-not-allowed"
                 />
+              </div>
+
+              <div>
+                <label className="label">
+                  Zone <span className="text-gray-500 text-sm">(Optional)</span>
+                </label>
+                <select
+                  name="zone"
+                  value={formData.zone}
+                  onChange={handleInputChange}
+                  disabled={!isEditing}
+                  className="input-field"
+                >
+                  <option value="">Select your zone</option>
+                  {zones.map(zone => (
+                    <option key={zone._id} value={zone._id}>
+                      {zone.name}
+                    </option>
+                  ))}
+                </select>
+                <p className="text-sm text-gray-500 mt-1">
+                  Setting your zone helps us provide better service scheduling
+                </p>
               </div>
             </div>
           </div>

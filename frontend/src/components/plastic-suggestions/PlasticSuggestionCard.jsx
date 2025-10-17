@@ -101,14 +101,19 @@ const PlasticSuggestionCard = ({
     title,
     description,
     category,
-    plasticSavedFormatted,
-    moneySaved,
+    plasticSavedFormatted = 'N/A',
+    moneySaved: rawMoneySaved = 0,
     difficulty,
     impactScore,
     imageUrl,
     statistics,
     tags
   } = suggestion;
+
+  // Safely convert moneySaved to number
+  const moneySaved = typeof rawMoneySaved === 'number' 
+    ? rawMoneySaved 
+    : parseFloat(rawMoneySaved) || 0;
 
   const handleImplementClick = (e) => {
     e.stopPropagation();
@@ -249,8 +254,8 @@ PlasticSuggestionCard.propTypes = {
       'packaging', 'food_storage', 'clothing', 'office',
       'travel', 'general'
     ]).isRequired,
-    plasticSavedFormatted: PropTypes.string.isRequired,
-    moneySaved: PropTypes.number.isRequired,
+    plasticSavedFormatted: PropTypes.string,
+    moneySaved: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
     difficulty: PropTypes.oneOf(['easy', 'medium', 'hard']).isRequired,
     impactScore: PropTypes.number.isRequired,
     imageUrl: PropTypes.string,

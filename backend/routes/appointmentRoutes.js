@@ -79,7 +79,7 @@ router.post('/', appointmentController.createAppointment);
 /**
  * @route   GET /api/v1/appointments/:id
  * @desc    Get appointment details
- * @access  Private (Resident/Admin)
+ * @access  Private (Resident/Admin/City Manager)
  * @params  {string} id - Appointment ID
  */
 router.get('/:id', appointmentController.getAppointmentDetails);
@@ -87,7 +87,7 @@ router.get('/:id', appointmentController.getAppointmentDetails);
 /**
  * @route   PATCH /api/v1/appointments/:id
  * @desc    Update/reschedule appointment
- * @access  Private (Resident)
+ * @access  Private (Resident/Admin/City Manager)
  * @params  {string} id - Appointment ID
  * @body    {Object} updateData - Fields to update
  */
@@ -96,7 +96,7 @@ router.patch('/:id', appointmentController.updateAppointment);
 /**
  * @route   DELETE /api/v1/appointments/:id
  * @desc    Cancel appointment
- * @access  Private (Resident)
+ * @access  Private (Resident/Admin/City Manager)
  * @params  {string} id - Appointment ID
  * @body    {string} reason - Cancellation reason
  */
@@ -175,6 +175,45 @@ router.patch(
   '/admin/:id/complete',
   authorize('admin', 'manager', 'driver'),
   appointmentController.completeAppointment
+);
+
+/**
+ * @route   PUT /api/v1/appointments/admin/:id
+ * @desc    Update appointment details (Admin)
+ * @access  Private (Admin)
+ * @params  {string} id - Appointment ID
+ * @body    {Object} appointmentData - Updated appointment data
+ */
+router.put(
+  '/admin/:id',
+  authorize('admin', 'manager'),
+  appointmentController.updateAppointmentAdmin
+);
+
+/**
+ * @route   DELETE /api/v1/appointments/admin/:id
+ * @desc    Delete appointment (Admin)
+ * @access  Private (Admin)
+ * @params  {string} id - Appointment ID
+ */
+router.delete(
+  '/admin/:id',
+  authorize('admin', 'manager'),
+  appointmentController.deleteAppointmentAdmin
+);
+
+/**
+ * @route   PATCH /api/v1/appointments/admin/:id/status
+ * @desc    Change appointment status (Admin)
+ * @access  Private (Admin)
+ * @params  {string} id - Appointment ID
+ * @body    {string} status - New status
+ * @body    {string} reason - Reason for status change (optional)
+ */
+router.patch(
+  '/admin/:id/status',
+  authorize('admin', 'manager'),
+  appointmentController.changeAppointmentStatus
 );
 
 module.exports = router;

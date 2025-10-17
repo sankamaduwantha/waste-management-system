@@ -84,7 +84,12 @@ class AppointmentRepository {
       } = pagination;
 
       // Build query
-      const query = { resident: residentId };
+      const query = {};
+      
+      // Only filter by resident if residentId is provided
+      if (residentId) {
+        query.resident = residentId;
+      }
 
       if (status) {
         query.status = status;
@@ -109,8 +114,10 @@ class AppointmentRepository {
           .sort(sort)
           .skip(skip)
           .limit(limit)
+          .populate('resident', 'name email phone')
           .populate('zone', 'name')
           .populate('assignedVehicle', 'registrationNumber')
+          .populate('assignedDriver', 'name phone')
           .exec(),
         Appointment.countDocuments(query),
       ]);
@@ -575,6 +582,51 @@ class AppointmentRepository {
       };
     } catch (error) {
       throw new Error(`Failed to get action-required appointments: ${error.message}`);
+    }
+  }
+
+  /**
+   * Update appointment
+   * @param {ObjectId|string} id - Appointment ID
+   * @param {Object} updateData - Data to update
+   * @returns {Promise<Appointment>} Updated appointment
+   */
+  async update(id, updateData) {
+    try {
+      const appointment = await Appointment.findByIdAndUpdate(
+        id,
+        updateData,
+        { new: true, runValidators: true }
+      )
+        .populate('resident', 'name email phone')
+        .populate('zone', 'name')
+        .populate('assignedVehicle', 'registrationNumber type')
+        .populate('assignedDriver', 'name phone');
+
+      if (!appointment) {
+        throw new Error('Appointment not found');
+      }
+
+      return appointment;
+    } catch (error) {
+      throw new Error(`Failed to update appointment: ${error.message}`);
+    }
+  }
+
+  /**
+   * Delete appointment
+   * @param {ObjectId|string} id - Appointment ID
+   * @returns {Promise<void>}
+   */
+  async delete(id) {
+    try {
+      const result = await Appointment.findByIdAndDelete(id);
+      
+      if (!result) {
+        throw new Error('Appointment not found');
+      }
+    } catch (error) {
+      throw new Error(`Failed to delete appointment: ${error.message}`);
     }
   }
 }

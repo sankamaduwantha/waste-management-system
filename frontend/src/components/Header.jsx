@@ -30,8 +30,12 @@ const Header = () => {
 
   const handleConfirmLogout = () => {
     setShowLogoutConfirm(false)
+    // Call logout first to clear auth state
     logout()
-    navigate('/')
+    // Navigate to home page after logout
+    setTimeout(() => {
+      navigate('/', { replace: true })
+    }, 100)
   }
 
   const handleCancelLogout = () => {
@@ -42,6 +46,21 @@ const Header = () => {
     if (e.target === e.currentTarget) {
       setShowLogoutConfirm(false)
     }
+  }
+
+  const getProfileImageUrl = () => {
+    if (user?.profileImage) {
+      // Check if it's a full URL or just a filename
+      if (user.profileImage.startsWith('http')) {
+        return user.profileImage;
+      }
+      // Don't show default avatar
+      if (user.profileImage === 'default-avatar.png' || user.profileImage === 'default.png') {
+        return null;
+      }
+      return `http://localhost:5000/uploads/profiles/${user.profileImage}`;
+    }
+    return null;
   }
 
   return (
@@ -65,7 +84,21 @@ const Header = () => {
             onClick={() => setShowProfile(!showProfile)}
             className="flex items-center space-x-2 text-gray-700 hover:text-gray-900 focus:outline-none"
           >
-            <FaUserCircle className="h-8 w-8" />
+            {getProfileImageUrl() ? (
+              <div className="w-8 h-8 rounded-full overflow-hidden bg-gradient-to-br from-primary-400 to-primary-600 ring-2 ring-white shadow">
+                <img 
+                  src={getProfileImageUrl()} 
+                  alt="Profile" 
+                  className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.target.style.display = 'none';
+                    e.target.parentElement.innerHTML = '<svg class="w-8 h-8 text-white" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg>';
+                  }}
+                />
+              </div>
+            ) : (
+              <FaUserCircle className="h-8 w-8" />
+            )}
             <span className="text-sm font-medium">{user?.name}</span>
           </button>
 

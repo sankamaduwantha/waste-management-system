@@ -483,7 +483,7 @@ performanceReportSchema.statics.generateReport = async function(residentId, peri
   const averagePerTask = totalVerified > 0 ? totalPointsEarned / totalVerified : 0;
 
   // Get resident for additional data
-  const resident = await Resident.findById(residentId).populate('zone');
+  const resident = await Resident.findById(residentId).populate('user');
 
   // Environmental impact calculations (simplified)
   const co2Saved = totalVerified * 2.5; // 2.5 kg per task

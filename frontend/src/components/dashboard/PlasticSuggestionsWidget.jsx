@@ -67,9 +67,9 @@ const PlasticSuggestionsWidget = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {topSuggestions.map((suggestion) => (
+          {topSuggestions.map((suggestion, index) => (
             <div
-              key={suggestion._id}
+              key={suggestion._id || suggestion.id || `suggestion-${index}`}
               className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-100 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">
@@ -115,12 +115,16 @@ const PlasticSuggestionsWidget = () => {
                 </div>
               </div>
               <div className="mt-3 pt-3 border-t border-gray-200">
-                <Link
-                  to={`/resident/plastic-suggestions/${suggestion._id}`}
-                  className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center"
-                >
-                  Learn More <FaArrowRight className="ml-1 h-3 w-3" />
-                </Link>
+                {suggestion._id ? (
+                  <Link
+                    to={`/resident/plastic-suggestions/${suggestion._id}`}
+                    className="text-sm text-primary-600 hover:text-primary-700 font-medium flex items-center"
+                  >
+                    Learn More <FaArrowRight className="ml-1 h-3 w-3" />
+                  </Link>
+                ) : (
+                  <span className="text-sm text-gray-400">Details not available</span>
+                )}
               </div>
             </div>
           ))}

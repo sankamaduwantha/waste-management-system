@@ -118,7 +118,7 @@ class AppointmentService {
   /**
    * Get appointment details
    * @param {ObjectId|string} appointmentId - Appointment ID
-   * @param {ObjectId|string} residentId - Resident ID (for verification)
+   * @param {ObjectId|string} residentId - Resident ID (for verification, null for admin)
    * @returns {Promise<Appointment>} Appointment details
    */
   async getAppointmentDetails(appointmentId, residentId) {
@@ -131,8 +131,8 @@ class AppointmentService {
         throw new AppError('Appointment not found', 404);
       }
 
-      // Verify ownership
-      if (appointment.resident._id.toString() !== residentId.toString()) {
+      // Verify ownership (skip if residentId is null - admin access)
+      if (residentId && appointment.resident._id.toString() !== residentId.toString()) {
         throw new AppError('Access denied', 403);
       }
 
@@ -146,7 +146,7 @@ class AppointmentService {
   /**
    * Update appointment (reschedule)
    * @param {ObjectId|string} appointmentId - Appointment ID
-   * @param {ObjectId|string} residentId - Resident ID
+   * @param {ObjectId|string} residentId - Resident ID (null for admin)
    * @param {Object} updateData - Update data
    * @returns {Promise<Appointment>} Updated appointment
    */
@@ -158,13 +158,13 @@ class AppointmentService {
         throw new AppError('Appointment not found', 404);
       }
 
-      // Verify ownership
-      if (appointment.resident.toString() !== residentId.toString()) {
+      // Verify ownership (skip if residentId is null - admin access)
+      if (residentId && appointment.resident.toString() !== residentId.toString()) {
         throw new AppError('Access denied', 403);
       }
 
-      // Check if appointment can be rescheduled
-      if (!appointment.canBeRescheduled) {
+      // Check if appointment can be rescheduled (skip for admin)
+      if (residentId && !appointment.canBeRescheduled) {
         throw new AppError('This appointment cannot be rescheduled', 400);
       }
 
@@ -204,7 +204,7 @@ class AppointmentService {
   /**
    * Cancel appointment
    * @param {ObjectId|string} appointmentId - Appointment ID
-   * @param {ObjectId|string} residentId - Resident ID
+   * @param {ObjectId|string} residentId - Resident ID (null for admin)
    * @param {string} reason - Cancellation reason
    * @returns {Promise<void>}
    */
@@ -216,13 +216,13 @@ class AppointmentService {
         throw new AppError('Appointment not found', 404);
       }
 
-      // Verify ownership
-      if (appointment.resident.toString() !== residentId.toString()) {
+      // Verify ownership (skip if residentId is null - admin access)
+      if (residentId && appointment.resident.toString() !== residentId.toString()) {
         throw new AppError('Access denied', 403);
       }
 
-      // Check if appointment can be cancelled
-      if (!appointment.canBeCancelled) {
+      // Check if appointment can be cancelled (skip for admin)
+      if (residentId && !appointment.canBeCancelled) {
         throw new AppError('This appointment cannot be cancelled', 400);
       }
 
@@ -445,6 +445,84 @@ class AppointmentService {
       return results;
     } catch (error) {
       throw new AppError(`Failed to send reminders: ${error.message}`, 500);
+    }
+  }
+
+  /**
+   * Update appointment (admin)
+   * @param {string} appointmentId - Appointment ID
+   * @param {Object} updateData - Data to update
+   * @returns {Promise<Object>} Updated appointment
+   */
+  async updateAppointment(appointmentId, updateData) {
+    try {
+      // Validate appointment exists
+      const appointment = await appointmentRepository.findById(appointmentId);
+      if (!appointment) {
+        throw new AppError('Appointment not found', 404);
+      }
+
+      // Update the appointment
+      const updated = await appointmentRepository.update(appointmentId, updateData);
+      
+      return updated;
+    } catch (error) {
+      throw new AppError(`Failed to update appointment: ${error.message}`, 500);
+    }
+  }
+
+  /**
+   * Delete appointment (admin)
+   * @param {string} appointmentId - Appointment ID
+   * @returns {Promise<void>}
+   */
+  async deleteAppointment(appointmentId) {
+    try {
+      // Validate appointment exists
+      const appointment = await appointmentRepository.findById(appointmentId);
+      if (!appointment) {
+        throw new AppError('Appointment not found', 404);
+      }
+
+      // Delete the appointment
+      await appointmentRepository.delete(appointmentId);
+    } catch (error) {
+      throw new AppError(`Failed to delete appointment: ${error.message}`, 500);
+    }
+  }
+
+  /**
+   * Change appointment status (admin)
+   * @param {string} appointmentId - Appointment ID
+   * @param {string} status - New status
+   * @param {string} reason - Reason for change
+   * @returns {Promise<Object>} Updated appointment
+   */
+  async changeStatus(appointmentId, status, reason) {
+    try {
+      // Validate appointment exists
+      const appointment = await appointmentRepository.findById(appointmentId);
+      if (!appointment) {
+        throw new AppError('Appointment not found', 404);
+      }
+
+      // Validate status
+      const validStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'];
+      if (!validStatuses.includes(status)) {
+        throw new AppError('Invalid status', 400);
+      }
+
+      // Update status
+      const updateData = { status };
+      if (reason) {
+        updateData.cancellationReason = reason;
+      }
+
+      const updated = await appointmentRepository.update(appointmentId, updateData);
+      
+      return updated;
+    } catch (error) {
+      throw new AppError(`Failed to change status: ${error.message}`, 500);
     }
   }
 }

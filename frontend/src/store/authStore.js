@@ -81,6 +81,7 @@ const useAuthStore = create(
 
         try {
           const response = await api.get('/auth/me')
+          console.log('🔄 checkAuth - Fetched user:', response.data.data.user?.name, 'Zone:', response.data.data.user?.zone)
           set({ 
             user: response.data.data.user, 
             isAuthenticated: true, 
@@ -98,11 +99,13 @@ const useAuthStore = create(
 
       // Update user
       updateUser: (userData) => {
+        console.log('👤 updateUser called with zone:', userData?.zone)
         set({ user: userData })
       },
 
       // Set user (alias for updateUser for compatibility)
       setUser: (userData) => {
+        console.log('👤 setUser called with zone:', userData?.zone)
         set({ user: userData })
       },
     }),

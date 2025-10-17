@@ -370,4 +370,62 @@ exports.getNextAvailableSlot = catchAsync(async (req, res, next) => {
   });
 });
 
+/**
+ * Update appointment (admin)
+ * @route PUT /api/v1/appointments/admin/:id
+ * @access Private (Admin)
+ */
+exports.updateAppointmentAdmin = catchAsync(async (req, res, next) => {
+  const appointment = await appointmentService.updateAppointment(
+    req.params.id,
+    req.body
+  );
+
+  res.status(200).json({
+    success: true,
+    data: { appointment },
+    message: 'Appointment updated successfully',
+  });
+});
+
+/**
+ * Delete appointment (admin)
+ * @route DELETE /api/v1/appointments/admin/:id
+ * @access Private (Admin)
+ */
+exports.deleteAppointmentAdmin = catchAsync(async (req, res, next) => {
+  await appointmentService.deleteAppointment(req.params.id);
+
+  res.status(200).json({
+    success: true,
+    data: null,
+    message: 'Appointment deleted successfully',
+  });
+});
+
+/**
+ * Change appointment status (admin)
+ * @route PATCH /api/v1/appointments/admin/:id/status
+ * @access Private (Admin)
+ */
+exports.changeAppointmentStatus = catchAsync(async (req, res, next) => {
+  const { status, reason } = req.body;
+
+  if (!status) {
+    return next(new AppError('Status is required', 400));
+  }
+
+  const appointment = await appointmentService.changeStatus(
+    req.params.id,
+    status,
+    reason
+  );
+
+  res.status(200).json({
+    success: true,
+    data: { appointment },
+    message: `Appointment status changed to ${status}`,
+  });
+});
+
 module.exports = exports;

@@ -6,7 +6,7 @@
 import { useState, useEffect } from 'react';
 import { 
   FaCalendar, FaSearch, FaFilter, FaEye, FaEdit, FaTimes, 
-  FaCheck, FaSpinner, FaClock, FaMapMarkedAlt, FaUser
+  FaCheck, FaSpinner, FaClock, FaMapMarkedAlt, FaUser, FaTrash, FaExchangeAlt
 } from 'react-icons/fa';
 import api from '../../services/api';
 import { showSuccessToast, showErrorToast, showWarningToast } from '../../components/common/ToastContainer';
@@ -24,6 +24,11 @@ const AdminAppointments = () => {
   const [zones, setZones] = useState([]);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showStatusModal, setShowStatusModal] = useState(false);
+  const [editFormData, setEditFormData] = useState({});
+  const [newStatus, setNewStatus] = useState('');
+  const [statusReason, setStatusReason] = useState('');
   const [actionLoading, setActionLoading] = useState(false);
 
   useEffect(() => {
@@ -117,6 +122,80 @@ const AdminAppointments = () => {
     } catch (error) {
       console.error('Failed to update appointment:', error);
       showErrorToast(error.response?.data?.message || 'Failed to update appointment');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openEditModal = (appointment) => {
+    setSelectedAppointment(appointment);
+    setEditFormData({
+      appointmentDate: new Date(appointment.appointmentDate).toISOString().split('T')[0],
+      timeSlot: appointment.timeSlot,
+      wasteTypes: appointment.wasteTypes || [],
+      estimatedAmount: appointment.estimatedAmount || '',
+      specialInstructions: appointment.specialInstructions || '',
+      zone: appointment.zone?._id || ''
+    });
+    setShowEditModal(true);
+  };
+
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      await api.put(`/appointments/admin/${selectedAppointment._id}`, editFormData);
+      showSuccessToast('Appointment updated successfully!');
+      fetchAppointments();
+      setShowEditModal(false);
+    } catch (error) {
+      console.error('Failed to update appointment:', error);
+      showErrorToast(error.response?.data?.message || 'Failed to update appointment');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const handleDelete = async (id) => {
+    if (!confirm('Are you sure you want to delete this appointment? This action cannot be undone.')) {
+      return;
+    }
+
+    setActionLoading(true);
+    try {
+      await api.delete(`/appointments/admin/${id}`);
+      showSuccessToast('Appointment deleted successfully!');
+      fetchAppointments();
+      setShowModal(false);
+    } catch (error) {
+      console.error('Failed to delete appointment:', error);
+      showErrorToast(error.response?.data?.message || 'Failed to delete appointment');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
+  const openStatusModal = (appointment) => {
+    setSelectedAppointment(appointment);
+    setNewStatus(appointment.status);
+    setStatusReason('');
+    setShowStatusModal(true);
+  };
+
+  const handleStatusChange = async (e) => {
+    e.preventDefault();
+    setActionLoading(true);
+    try {
+      await api.patch(`/appointments/admin/${selectedAppointment._id}/status`, {
+        status: newStatus,
+        reason: statusReason
+      });
+      showSuccessToast(`Appointment status changed to ${newStatus}!`);
+      fetchAppointments();
+      setShowStatusModal(false);
+    } catch (error) {
+      console.error('Failed to change status:', error);
+      showErrorToast(error.response?.data?.message || 'Failed to change status');
     } finally {
       setActionLoading(false);
     }
@@ -324,13 +403,36 @@ const AdminAppointments = () => {
                       {getStatusBadge(apt.status)}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                      <button
-                        onClick={() => viewAppointment(apt._id)}
-                        className="text-primary-600 hover:text-primary-900 mr-3"
-                        title="View Details"
-                      >
-                        <FaEye className="inline" />
-                      </button>
+                      <div className="flex items-center gap-2">
+                        <button
+                          onClick={() => viewAppointment(apt._id)}
+                          className="text-primary-600 hover:text-primary-900"
+                          title="View Details"
+                        >
+                          <FaEye className="inline" />
+                        </button>
+                        <button
+                          onClick={() => openEditModal(apt)}
+                          className="text-blue-600 hover:text-blue-900"
+                          title="Edit Appointment"
+                        >
+                          <FaEdit className="inline" />
+                        </button>
+                        <button
+                          onClick={() => openStatusModal(apt)}
+                          className="text-purple-600 hover:text-purple-900"
+                          title="Change Status"
+                        >
+                          <FaExchangeAlt className="inline" />
+                        </button>
+                        <button
+                          onClick={() => handleDelete(apt._id)}
+                          className="text-red-600 hover:text-red-900"
+                          title="Delete Appointment"
+                        >
+                          <FaTrash className="inline" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}
@@ -452,6 +554,171 @@ const AdminAppointments = () => {
                   </button>
                 )}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Appointment Modal */}
+      {showEditModal && selectedAppointment && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={() => setShowEditModal(false)} />
+            
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full">
+              <form onSubmit={handleEditSubmit}>
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Edit Appointment</h3>
+                    <button type="button" onClick={() => setShowEditModal(false)} className="text-gray-400 hover:text-gray-600">
+                      <FaTimes />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Date</label>
+                        <input
+                          type="date"
+                          value={editFormData.appointmentDate}
+                          onChange={(e) => setEditFormData({...editFormData, appointmentDate: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Zone</label>
+                        <select
+                          value={editFormData.zone}
+                          onChange={(e) => setEditFormData({...editFormData, zone: e.target.value})}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                          required
+                        >
+                          <option value="">Select Zone</option>
+                          {zones.map(zone => (
+                            <option key={zone._id} value={zone._id}>{zone.name}</option>
+                          ))}
+                        </select>
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Estimated Amount (kg)</label>
+                      <input
+                        type="number"
+                        value={editFormData.estimatedAmount}
+                        onChange={(e) => setEditFormData({...editFormData, estimatedAmount: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                        min="0"
+                        step="0.1"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Special Instructions</label>
+                      <textarea
+                        value={editFormData.specialInstructions}
+                        onChange={(e) => setEditFormData({...editFormData, specialInstructions: e.target.value})}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                        rows="3"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    className="w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                  >
+                    {actionLoading ? <FaSpinner className="inline animate-spin mr-2" /> : <FaCheck className="inline mr-2" />}
+                    Save Changes
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowEditModal(false)}
+                    className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Change Status Modal */}
+      {showStatusModal && selectedAppointment && (
+        <div className="fixed inset-0 z-50 overflow-y-auto">
+          <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+            <div className="fixed inset-0 transition-opacity bg-gray-500 bg-opacity-75" onClick={() => setShowStatusModal(false)} />
+            
+            <div className="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+              <form onSubmit={handleStatusChange}>
+                <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="text-lg font-medium text-gray-900">Change Appointment Status</h3>
+                    <button type="button" onClick={() => setShowStatusModal(false)} className="text-gray-400 hover:text-gray-600">
+                      <FaTimes />
+                    </button>
+                  </div>
+                  
+                  <div className="space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Current Status</label>
+                      <div className="mb-3">{getStatusBadge(selectedAppointment.status)}</div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">New Status</label>
+                      <select
+                        value={newStatus}
+                        onChange={(e) => setNewStatus(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                        required
+                      >
+                        <option value="pending">Pending</option>
+                        <option value="confirmed">Confirmed</option>
+                        <option value="in_progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                        <option value="cancelled">Cancelled</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Reason (Optional)</label>
+                      <textarea
+                        value={statusReason}
+                        onChange={(e) => setStatusReason(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500"
+                        rows="3"
+                        placeholder="Enter reason for status change..."
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse gap-2">
+                  <button
+                    type="submit"
+                    disabled={actionLoading}
+                    className="w-full sm:w-auto px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50"
+                  >
+                    {actionLoading ? <FaSpinner className="inline animate-spin mr-2" /> : <FaExchangeAlt className="inline mr-2" />}
+                    Change Status
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setShowStatusModal(false)}
+                    className="w-full sm:w-auto px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

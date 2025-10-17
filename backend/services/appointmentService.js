@@ -447,6 +447,84 @@ class AppointmentService {
       throw new AppError(`Failed to send reminders: ${error.message}`, 500);
     }
   }
+
+  /**
+   * Update appointment (admin)
+   * @param {string} appointmentId - Appointment ID
+   * @param {Object} updateData - Data to update
+   * @returns {Promise<Object>} Updated appointment
+   */
+  async updateAppointment(appointmentId, updateData) {
+    try {
+      // Validate appointment exists
+      const appointment = await appointmentRepository.findById(appointmentId);
+      if (!appointment) {
+        throw new AppError('Appointment not found', 404);
+      }
+
+      // Update the appointment
+      const updated = await appointmentRepository.update(appointmentId, updateData);
+      
+      return updated;
+    } catch (error) {
+      throw new AppError(`Failed to update appointment: ${error.message}`, 500);
+    }
+  }
+
+  /**
+   * Delete appointment (admin)
+   * @param {string} appointmentId - Appointment ID
+   * @returns {Promise<void>}
+   */
+  async deleteAppointment(appointmentId) {
+    try {
+      // Validate appointment exists
+      const appointment = await appointmentRepository.findById(appointmentId);
+      if (!appointment) {
+        throw new AppError('Appointment not found', 404);
+      }
+
+      // Delete the appointment
+      await appointmentRepository.delete(appointmentId);
+    } catch (error) {
+      throw new AppError(`Failed to delete appointment: ${error.message}`, 500);
+    }
+  }
+
+  /**
+   * Change appointment status (admin)
+   * @param {string} appointmentId - Appointment ID
+   * @param {string} status - New status
+   * @param {string} reason - Reason for change
+   * @returns {Promise<Object>} Updated appointment
+   */
+  async changeStatus(appointmentId, status, reason) {
+    try {
+      // Validate appointment exists
+      const appointment = await appointmentRepository.findById(appointmentId);
+      if (!appointment) {
+        throw new AppError('Appointment not found', 404);
+      }
+
+      // Validate status
+      const validStatuses = ['pending', 'confirmed', 'in_progress', 'completed', 'cancelled'];
+      if (!validStatuses.includes(status)) {
+        throw new AppError('Invalid status', 400);
+      }
+
+      // Update status
+      const updateData = { status };
+      if (reason) {
+        updateData.cancellationReason = reason;
+      }
+
+      const updated = await appointmentRepository.update(appointmentId, updateData);
+      
+      return updated;
+    } catch (error) {
+      throw new AppError(`Failed to change status: ${error.message}`, 500);
+    }
+  }
 }
 
 // Export singleton instance

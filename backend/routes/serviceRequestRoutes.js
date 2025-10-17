@@ -1,31 +1,43 @@
 const express = require('express');
 const router = express.Router();
+const {
+  getAllRequests,
+  getRequestStats,
+  getRequest,
+  createRequest,
+  updateRequest,
+  assignRequest,
+  updateStatus,
+  deleteRequest,
+  getRequestsByZone,
+  getUrgentRequests,
+  submitFeedback
+} = require('../controllers/serviceRequestController');
 const { protect, authorize } = require('../middleware/auth');
 
+// All routes require authentication
 router.use(protect);
 
-router.get('/', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get all service requests' });
-});
+// Stats and special routes
+router.get('/stats/overview', authorize('admin', 'city_manager'), getRequestStats);
+router.get('/urgent', authorize('admin', 'city_manager'), getUrgentRequests);
+router.get('/zone/:zoneId', authorize('admin', 'city_manager'), getRequestsByZone);
 
-router.post('/', (req, res) => {
-  res.status(201).json({ status: 'success', message: 'Create service request' });
-});
+// CRUD routes
+router.route('/')
+  .get(getAllRequests)
+  .post(createRequest);
 
-router.get('/my-requests', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get user requests' });
-});
+router.route('/:id')
+  .get(getRequest)
+  .put(authorize('admin', 'city_manager'), updateRequest)
+  .delete(authorize('admin', 'city_manager'), deleteRequest);
 
-router.get('/:id', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get service request' });
-});
+// Assignment and status routes
+router.patch('/:id/assign', authorize('admin', 'city_manager'), assignRequest);
+router.patch('/:id/status', authorize('admin', 'city_manager', 'garbage_collector'), updateStatus);
 
-router.put('/:id', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Update service request' });
-});
-
-router.post('/:id/feedback', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Submit feedback' });
-});
+// Feedback route
+router.post('/:id/feedback', submitFeedback);
 
 module.exports = router;

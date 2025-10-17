@@ -260,6 +260,10 @@ const Profile = () => {
                     src={getProfileImageUrl()} 
                     alt="Profile" 
                     className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.target.style.display = 'none';
+                      e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-gray-400"><svg class="w-16 h-16" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd" /></svg></div>';
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">

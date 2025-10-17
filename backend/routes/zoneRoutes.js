@@ -1,28 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const zoneController = require('../controllers/zoneController');
 
 router.use(protect);
-router.use(authorize('admin', 'city_manager'));
 
-router.get('/', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get all zones' });
-});
+// Public routes (all authenticated users can view zones)
+router.get('/list/active', zoneController.getActiveZones);
+router.get('/', zoneController.getAllZones);
+router.get('/:id', zoneController.getZone);
+router.get('/:id/statistics', zoneController.getZoneStatistics);
 
-router.post('/', authorize('admin'), (req, res) => {
-  res.status(201).json({ status: 'success', message: 'Create zone' });
-});
+// Admin and City Manager routes
+router.post(
+  '/', 
+  authorize('admin', 'city_manager'), 
+  zoneController.createZone
+);
 
-router.get('/:id', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get zone' });
-});
+router.put(
+  '/:id', 
+  authorize('admin', 'city_manager'), 
+  zoneController.updateZone
+);
 
-router.put('/:id', authorize('admin'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Update zone' });
-});
+// Admin only routes
+router.delete(
+  '/:id', 
+  authorize('admin'), 
+  zoneController.deleteZone
+);
 
-router.delete('/:id', authorize('admin'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Delete zone' });
-});
+router.post(
+  '/bulk', 
+  authorize('admin'), 
+  zoneController.bulkCreateZones
+);
 
 module.exports = router;

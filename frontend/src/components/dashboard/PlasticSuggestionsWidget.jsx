@@ -67,9 +67,9 @@ const PlasticSuggestionsWidget = () => {
         </div>
       ) : (
         <div className="space-y-3">
-          {topSuggestions.map((suggestion) => (
+          {topSuggestions.map((suggestion, index) => (
             <div
-              key={suggestion._id}
+              key={suggestion._id || suggestion.id || `suggestion-${index}`}
               className="p-4 bg-gradient-to-r from-green-50 to-blue-50 rounded-lg border border-green-100 hover:shadow-md transition-shadow"
             >
               <div className="flex items-start justify-between">

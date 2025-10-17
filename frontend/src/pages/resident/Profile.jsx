@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from 'react';
-import { toast } from 'react-toastify';
-import useAuthStore from '../../store/authStore';
-import api from '../../services/api';
+import { useState, useEffect, useRef } from "react";
+import { toast } from "react-toastify";
+import useAuthStore from "../../store/authStore";
+import api from "../../services/api";
 
 const Profile = () => {
   const { user: authUser, setUser } = useAuthStore();
@@ -13,26 +13,27 @@ const Profile = () => {
   const [residentData, setResidentData] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
   const fileInputRef = useRef(null);
+  const prevImageUrlRef = useRef(null);
 
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
+    name: "",
+    email: "",
+    phone: "",
     address: {
-      street: '',
-      city: '',
-      state: '',
-      zipCode: ''
+      street: "",
+      city: "",
+      state: "",
+      zipCode: "",
     },
     preferences: {
       emailNotifications: true,
       smsNotifications: true,
-      pushNotifications: true
+      pushNotifications: true,
     },
     // Resident specific fields
     householdSize: 1,
-    propertyType: 'house',
-    specialRequirements: ''
+    propertyType: "house",
+    specialRequirements: "",
   });
 
   useEffect(() => {
@@ -42,38 +43,38 @@ const Profile = () => {
   const fetchProfile = async () => {
     try {
       setLoading(true);
-      const response = await api.get('/auth/me');
+      const response = await api.get("/auth/me");
       const { user, residentProfile } = response.data.data;
-      
+
       setUserData(user);
       setResidentData(residentProfile);
-      
+
       // Update auth store with fresh user data including profileImage
       setUser(user);
 
       // Populate form data
       setFormData({
-        name: user.name || '',
-        email: user.email || '',
-        phone: user.phone || '',
+        name: user.name || "",
+        email: user.email || "",
+        phone: user.phone || "",
         address: {
-          street: user.address?.street || '',
-          city: user.address?.city || '',
-          state: user.address?.state || '',
-          zipCode: user.address?.zipCode || ''
+          street: user.address?.street || "",
+          city: user.address?.city || "",
+          state: user.address?.state || "",
+          zipCode: user.address?.zipCode || "",
         },
         preferences: {
           emailNotifications: user.preferences?.emailNotifications ?? true,
           smsNotifications: user.preferences?.smsNotifications ?? true,
-          pushNotifications: user.preferences?.pushNotifications ?? true
+          pushNotifications: user.preferences?.pushNotifications ?? true,
         },
         householdSize: residentProfile?.householdSize || 1,
-        propertyType: residentProfile?.propertyType || 'house',
-        specialRequirements: residentProfile?.specialRequirements || ''
+        propertyType: residentProfile?.propertyType || "house",
+        specialRequirements: residentProfile?.specialRequirements || "",
       });
     } catch (error) {
-      console.error('Error fetching profile:', error);
-      toast.error('Failed to load profile');
+      console.error("Error fetching profile:", error);
+      toast.error("Failed to load profile");
     } finally {
       setLoading(false);
     }
@@ -81,49 +82,49 @@ const Profile = () => {
 
   const handleInputChange = (e) => {
     const { name, value, type, checked } = e.target;
-    
-    if (name.startsWith('address.')) {
-      const addressField = name.split('.')[1];
-      setFormData(prev => ({
+
+    if (name.startsWith("address.")) {
+      const addressField = name.split(".")[1];
+      setFormData((prev) => ({
         ...prev,
         address: {
           ...prev.address,
-          [addressField]: value
-        }
+          [addressField]: value,
+        },
       }));
-    } else if (name.startsWith('preferences.')) {
-      const prefField = name.split('.')[1];
-      setFormData(prev => ({
+    } else if (name.startsWith("preferences.")) {
+      const prefField = name.split(".")[1];
+      setFormData((prev) => ({
         ...prev,
         preferences: {
           ...prev.preferences,
-          [prefField]: type === 'checkbox' ? checked : value
-        }
+          [prefField]: type === "checkbox" ? checked : value,
+        },
       }));
     } else {
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        [name]: type === 'checkbox' ? checked : value
+        [name]: type === "checkbox" ? checked : value,
       }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     try {
       setSaving(true);
-      const response = await api.put('/auth/update-profile', formData);
-      
+      const response = await api.put("/auth/update-profile", formData);
+
       const { user, residentProfile } = response.data.data;
       setUserData(user);
       setResidentData(residentProfile);
-      
+
       setIsEditing(false);
-      toast.success('Profile updated successfully!');
+      toast.success("Profile updated successfully!");
     } catch (error) {
-      console.error('Error updating profile:', error);
-      toast.error(error.response?.data?.message || 'Failed to update profile');
+      console.error("Error updating profile:", error);
+      toast.error(error.response?.data?.message || "Failed to update profile");
     } finally {
       setSaving(false);
     }
@@ -133,23 +134,23 @@ const Profile = () => {
     // Reset form to original values
     if (userData) {
       setFormData({
-        name: userData.name || '',
-        email: userData.email || '',
-        phone: userData.phone || '',
+        name: userData.name || "",
+        email: userData.email || "",
+        phone: userData.phone || "",
         address: {
-          street: userData.address?.street || '',
-          city: userData.address?.city || '',
-          state: userData.address?.state || '',
-          zipCode: userData.address?.zipCode || ''
+          street: userData.address?.street || "",
+          city: userData.address?.city || "",
+          state: userData.address?.state || "",
+          zipCode: userData.address?.zipCode || "",
         },
         preferences: {
           emailNotifications: userData.preferences?.emailNotifications ?? true,
           smsNotifications: userData.preferences?.smsNotifications ?? true,
-          pushNotifications: userData.preferences?.pushNotifications ?? true
+          pushNotifications: userData.preferences?.pushNotifications ?? true,
         },
         householdSize: residentData?.householdSize || 1,
-        propertyType: residentData?.propertyType || 'house',
-        specialRequirements: residentData?.specialRequirements || ''
+        propertyType: residentData?.propertyType || "house",
+        specialRequirements: residentData?.specialRequirements || "",
       });
     }
     setImagePreview(null);
@@ -165,50 +166,72 @@ const Profile = () => {
     if (!file) return;
 
     // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file');
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file");
       return;
     }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size should be less than 5MB');
+      toast.error("Image size should be less than 5MB");
       return;
     }
 
-    // Show preview
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setImagePreview(reader.result);
-    };
-    reader.readAsDataURL(file);
+    // Show preview using object URL (faster, less memory than base64 for large files)
+    try {
+      const objectUrl = URL.createObjectURL(file);
+      // Revoke previous object URL if any
+      if (prevImageUrlRef.current) {
+        try {
+          URL.revokeObjectURL(prevImageUrlRef.current);
+        } catch (err) {
+          /* ignore */
+        }
+      }
+      prevImageUrlRef.current = objectUrl;
+      setImagePreview(objectUrl);
+    } catch (err) {
+      // fallback to FileReader if createObjectURL fails
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result);
+      reader.readAsDataURL(file);
+    }
 
     // Upload image
     try {
       setUploading(true);
       const formData = new FormData();
-      formData.append('profileImage', file);
+      formData.append("profileImage", file);
 
-      const response = await api.post('/auth/upload-profile-image', formData, {
+      const response = await api.post("/auth/upload-profile-image", formData, {
         headers: {
-          'Content-Type': 'multipart/form-data'
-        }
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       const { profileImage } = response.data.data;
-      
+
       // Update local user data state
       const updatedUserData = { ...userData, profileImage };
       setUserData(updatedUserData);
-      
+
       // Update auth store with the updated user data
       const updatedAuthUser = { ...authUser, profileImage };
       setUser(updatedAuthUser);
 
-      toast.success('Profile image updated successfully!');
+      toast.success("Profile image updated successfully!");
     } catch (error) {
-      console.error('Error uploading image:', error);
-      toast.error(error.response?.data?.message || 'Failed to upload image');
+      console.error("Error uploading image:", error);
+      toast.error(error.response?.data?.message || "Failed to upload image");
+      // revoke any created object url and clear preview
+      if (prevImageUrlRef.current) {
+        try {
+          URL.revokeObjectURL(prevImageUrlRef.current);
+        } catch (err) {
+          /* ignore */
+        }
+        prevImageUrlRef.current = null;
+      }
       setImagePreview(null);
     } finally {
       setUploading(false);
@@ -217,11 +240,47 @@ const Profile = () => {
 
   const getProfileImageUrl = () => {
     if (imagePreview) return imagePreview;
-    if (userData?.profileImage && userData.profileImage !== 'default-avatar.png') {
-      return `http://localhost:5000/uploads/profiles/${userData.profileImage}`;
+    const pi = userData?.profileImage;
+    if (!pi || pi === "default-avatar.png") return null;
+
+    // Determine server origin from VITE_API_URL if available, fallback to localhost
+    let serverOrigin = "http://localhost:5000";
+    try {
+      const apiUrl =
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api/v1";
+      serverOrigin = new URL(apiUrl).origin;
+    } catch (err) {
+      /* keep fallback */
     }
-    return null;
+
+    // If backend returned full URL already, use it
+    if (pi.startsWith("http://") || pi.startsWith("https://")) return pi;
+
+    // Normalize: if it contains '/uploads/' but doesn't start with '/', ensure single slash
+    if (pi.includes("/uploads/")) {
+      const normalized = pi.startsWith("/") ? pi : `/${pi}`;
+      return `${serverOrigin}${normalized}`;
+    }
+
+    // If it starts with '/', treat as absolute path
+    if (pi.startsWith("/")) return `${serverOrigin}${pi}`;
+
+    // If it's just a filename (no uploads segment), build path
+    return `${serverOrigin}/uploads/profiles/${pi}`;
   };
+
+  // Cleanup object URL on unmount
+  useEffect(() => {
+    return () => {
+      if (prevImageUrlRef.current) {
+        try {
+          URL.revokeObjectURL(prevImageUrlRef.current);
+        } catch (err) {
+          /* ignore */
+        }
+      }
+    };
+  }, []);
 
   if (loading) {
     return (
@@ -238,13 +297,12 @@ const Profile = () => {
         <div className="flex justify-between items-center mb-6">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Profile</h1>
-            <p className="text-gray-600 mt-1">Manage your account information</p>
+            <p className="text-gray-600 mt-1">
+              Manage your account information
+            </p>
           </div>
           {!isEditing ? (
-            <button
-              onClick={() => setIsEditing(true)}
-              className="btn-primary"
-            >
+            <button onClick={() => setIsEditing(true)} className="btn-primary">
               Edit Profile
             </button>
           ) : (
@@ -261,7 +319,7 @@ const Profile = () => {
                 className="btn-primary"
                 disabled={saving}
               >
-                {saving ? 'Saving...' : 'Save Changes'}
+                {saving ? "Saving..." : "Save Changes"}
               </button>
             </div>
           )}
@@ -271,20 +329,28 @@ const Profile = () => {
           {/* Profile Image Section */}
           <div className="flex flex-col items-center space-y-4">
             <div className="relative">
-              <div 
+              <div
                 className="w-32 h-32 rounded-full overflow-hidden bg-gray-200 cursor-pointer hover:opacity-80 transition-opacity"
                 onClick={handleImageClick}
               >
                 {getProfileImageUrl() ? (
-                  <img 
-                    src={getProfileImageUrl()} 
-                    alt="Profile" 
+                  <img
+                    src={getProfileImageUrl()}
+                    alt="Profile"
                     className="w-full h-full object-cover"
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center text-gray-400">
-                    <svg className="w-16 h-16" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                    <svg
+                      className="w-16 h-16"
+                      fill="currentColor"
+                      viewBox="0 0 20 20"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                   </div>
                 )}
@@ -308,14 +374,16 @@ const Profile = () => {
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
               disabled={uploading}
             >
-              {uploading ? 'Uploading...' : 'Change Profile Picture'}
+              {uploading ? "Uploading..." : "Change Profile Picture"}
             </button>
             <p className="text-xs text-gray-500">JPG, PNG or GIF (Max 5MB)</p>
           </div>
 
           {/* Basic Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Basic Information</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Basic Information
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="label">Full Name</label>
@@ -359,7 +427,7 @@ const Profile = () => {
                 <label className="label">Role</label>
                 <input
                   type="text"
-                  value={userData?.role?.replace('_', ' ').toUpperCase()}
+                  value={userData?.role?.replace("_", " ").toUpperCase()}
                   disabled={true}
                   className="input-field bg-gray-100 cursor-not-allowed"
                 />
@@ -369,7 +437,9 @@ const Profile = () => {
 
           {/* Address Information */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Address</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Address
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="md:col-span-2">
                 <label className="label">Street Address</label>
@@ -380,7 +450,7 @@ const Profile = () => {
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="input-field"
-                  placeholder="123 Main St"
+                  placeholder="Enter your street address"
                 />
               </div>
 
@@ -393,7 +463,7 @@ const Profile = () => {
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="input-field"
-                  placeholder="New York"
+                  placeholder="Enter Your City"
                 />
               </div>
 
@@ -406,7 +476,7 @@ const Profile = () => {
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="input-field"
-                  placeholder="NY"
+                  placeholder="Enter your state"
                 />
               </div>
 
@@ -419,16 +489,18 @@ const Profile = () => {
                   onChange={handleInputChange}
                   disabled={!isEditing}
                   className="input-field"
-                  placeholder="10001"
+                  placeholder="Enter your zip code"
                 />
               </div>
             </div>
           </div>
 
           {/* Resident Specific Fields */}
-          {userData?.role === 'resident' && (
+          {userData?.role === "resident" && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Household Information</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Household Information
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="label">Household Size</label>
@@ -477,7 +549,9 @@ const Profile = () => {
 
           {/* Notification Preferences */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Notification Preferences</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Notification Preferences
+            </h2>
             <div className="space-y-3">
               <label className="flex items-center">
                 <input
@@ -519,27 +593,33 @@ const Profile = () => {
 
           {/* Account Status */}
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Account Status</h2>
+            <h2 className="text-xl font-semibold text-gray-900 mb-4">
+              Account Status
+            </h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="flex items-center">
                 <span className="text-gray-700">Status:</span>
-                <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${
-                  userData?.status === 'active' 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-red-100 text-red-800'
-                }`}>
+                <span
+                  className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${
+                    userData?.status === "active"
+                      ? "bg-green-100 text-green-800"
+                      : "bg-red-100 text-red-800"
+                  }`}
+                >
                   {userData?.status?.toUpperCase()}
                 </span>
               </div>
 
               <div className="flex items-center">
                 <span className="text-gray-700">Email Verified:</span>
-                <span className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${
-                  userData?.emailVerified 
-                    ? 'bg-green-100 text-green-800' 
-                    : 'bg-yellow-100 text-yellow-800'
-                }`}>
-                  {userData?.emailVerified ? 'Verified' : 'Not Verified'}
+                <span
+                  className={`ml-2 px-3 py-1 rounded-full text-sm font-medium ${
+                    userData?.emailVerified
+                      ? "bg-green-100 text-green-800"
+                      : "bg-yellow-100 text-yellow-800"
+                  }`}
+                >
+                  {userData?.emailVerified ? "Verified" : "Not Verified"}
                 </span>
               </div>
 
@@ -555,12 +635,16 @@ const Profile = () => {
           </div>
 
           {/* Resident Stats */}
-          {userData?.role === 'resident' && residentData?.recyclingStats && (
+          {userData?.role === "resident" && residentData?.recyclingStats && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Recycling Statistics</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Recycling Statistics
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-sm text-blue-600 font-medium">Total Waste</p>
+                  <p className="text-sm text-blue-600 font-medium">
+                    Total Waste
+                  </p>
                   <p className="text-2xl font-bold text-blue-900">
                     {residentData.recyclingStats.totalWasteGenerated} kg
                   </p>
@@ -574,14 +658,18 @@ const Profile = () => {
                 </div>
 
                 <div className="bg-purple-50 p-4 rounded-lg">
-                  <p className="text-sm text-purple-600 font-medium">Recycling Rate</p>
+                  <p className="text-sm text-purple-600 font-medium">
+                    Recycling Rate
+                  </p>
                   <p className="text-2xl font-bold text-purple-900">
                     {residentData.recyclingStats.recyclingRate}%
                   </p>
                 </div>
 
                 <div className="bg-emerald-50 p-4 rounded-lg">
-                  <p className="text-sm text-emerald-600 font-medium">CO2 Saved</p>
+                  <p className="text-sm text-emerald-600 font-medium">
+                    CO2 Saved
+                  </p>
                   <p className="text-2xl font-bold text-emerald-900">
                     {residentData.recyclingStats.co2Saved} kg
                   </p>
@@ -591,9 +679,11 @@ const Profile = () => {
           )}
 
           {/* Gamification Stats */}
-          {userData?.role === 'resident' && residentData?.gamification && (
+          {userData?.role === "resident" && residentData?.gamification && (
             <div>
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Achievements</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">
+                Achievements
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="bg-yellow-50 p-4 rounded-lg text-center">
                   <p className="text-sm text-yellow-600 font-medium">Points</p>
@@ -619,10 +709,15 @@ const Profile = () => {
 
               {residentData.gamification.badges?.length > 0 && (
                 <div className="mt-4">
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">Earned Badges</h3>
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                    Earned Badges
+                  </h3>
                   <div className="flex flex-wrap gap-2">
                     {residentData.gamification.badges.map((badge, index) => (
-                      <div key={index} className="bg-white border-2 border-yellow-400 rounded-lg px-3 py-2">
+                      <div
+                        key={index}
+                        className="bg-white border-2 border-yellow-400 rounded-lg px-3 py-2"
+                      >
                         <span className="text-2xl">{badge.icon}</span>
                         <p className="text-sm font-medium">{badge.name}</p>
                       </div>

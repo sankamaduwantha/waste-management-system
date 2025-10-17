@@ -24,9 +24,10 @@ router.put('/reset-password/:resettoken', resetPassword);
 
 // Protected routes
 router.get('/me', protect, getMe);
+router.put('/profile', protect, updateProfile); // Add this route for profile updates
 router.post('/logout', protect, logout);
 router.put('/update-password', protect, updatePassword);
-router.put('/update-profile', protect, updateProfile);
+router.put('/update-profile', protect, updateProfile); // Keep this for backwards compatibility
 router.post('/upload-profile-image', protect, upload.single('profileImage'), uploadProfileImage);
 
 module.exports = router;

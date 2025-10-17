@@ -118,7 +118,7 @@ class AppointmentService {
   /**
    * Get appointment details
    * @param {ObjectId|string} appointmentId - Appointment ID
-   * @param {ObjectId|string} residentId - Resident ID (for verification)
+   * @param {ObjectId|string} residentId - Resident ID (for verification, null for admin)
    * @returns {Promise<Appointment>} Appointment details
    */
   async getAppointmentDetails(appointmentId, residentId) {
@@ -131,8 +131,8 @@ class AppointmentService {
         throw new AppError('Appointment not found', 404);
       }
 
-      // Verify ownership
-      if (appointment.resident._id.toString() !== residentId.toString()) {
+      // Verify ownership (skip if residentId is null - admin access)
+      if (residentId && appointment.resident._id.toString() !== residentId.toString()) {
         throw new AppError('Access denied', 403);
       }
 
@@ -146,7 +146,7 @@ class AppointmentService {
   /**
    * Update appointment (reschedule)
    * @param {ObjectId|string} appointmentId - Appointment ID
-   * @param {ObjectId|string} residentId - Resident ID
+   * @param {ObjectId|string} residentId - Resident ID (null for admin)
    * @param {Object} updateData - Update data
    * @returns {Promise<Appointment>} Updated appointment
    */
@@ -158,13 +158,13 @@ class AppointmentService {
         throw new AppError('Appointment not found', 404);
       }
 
-      // Verify ownership
-      if (appointment.resident.toString() !== residentId.toString()) {
+      // Verify ownership (skip if residentId is null - admin access)
+      if (residentId && appointment.resident.toString() !== residentId.toString()) {
         throw new AppError('Access denied', 403);
       }
 
-      // Check if appointment can be rescheduled
-      if (!appointment.canBeRescheduled) {
+      // Check if appointment can be rescheduled (skip for admin)
+      if (residentId && !appointment.canBeRescheduled) {
         throw new AppError('This appointment cannot be rescheduled', 400);
       }
 
@@ -204,7 +204,7 @@ class AppointmentService {
   /**
    * Cancel appointment
    * @param {ObjectId|string} appointmentId - Appointment ID
-   * @param {ObjectId|string} residentId - Resident ID
+   * @param {ObjectId|string} residentId - Resident ID (null for admin)
    * @param {string} reason - Cancellation reason
    * @returns {Promise<void>}
    */
@@ -216,13 +216,13 @@ class AppointmentService {
         throw new AppError('Appointment not found', 404);
       }
 
-      // Verify ownership
-      if (appointment.resident.toString() !== residentId.toString()) {
+      // Verify ownership (skip if residentId is null - admin access)
+      if (residentId && appointment.resident.toString() !== residentId.toString()) {
         throw new AppError('Access denied', 403);
       }
 
-      // Check if appointment can be cancelled
-      if (!appointment.canBeCancelled) {
+      // Check if appointment can be cancelled (skip for admin)
+      if (residentId && !appointment.canBeCancelled) {
         throw new AppError('This appointment cannot be cancelled', 400);
       }
 

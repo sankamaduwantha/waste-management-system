@@ -40,6 +40,9 @@ const appointmentRoutes = require('./routes/appointmentRoutes');
 const taskRoutes = require('./routes/taskRoutes');
 const performanceRoutes = require('./routes/performanceRoutes');
 const rewardRoutes = require('./routes/rewardRoutes');
+const systemConfigRoutes = require('./routes/systemConfigRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const collectorRoutes = require('./routes/collectorRoutes');
 
 // Import scheduled jobs
 const { scheduleNotifications } = require('./jobs/notificationJobs');
@@ -61,7 +64,10 @@ const io = socketIo(server, {
 app.set('io', io);
 
 // Middleware
-app.use(helmet()); // Security headers
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false
+})); // Security headers with CORS-friendly settings
 app.use(compression()); // Compress responses
 app.use(cors({
   origin: ['http://localhost:3000', 'http://localhost:3001', 'http://localhost:5173'],
@@ -71,8 +77,11 @@ app.use(express.json()); // Parse JSON bodies
 app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
 app.use(morgan('dev')); // Logging
 
-// Serve static files for uploads
-app.use('/uploads', express.static('uploads'));
+// Serve static files for uploads with CORS headers
+app.use('/uploads', (req, res, next) => {
+  res.header('Cross-Origin-Resource-Policy', 'cross-origin');
+  next();
+}, express.static('uploads'));
 
 // Apply rate limiting to all routes
 app.use('/api/', rateLimiter);
@@ -135,6 +144,9 @@ app.use(`/api/${API_VERSION}/appointments`, appointmentRoutes);
 app.use(`/api/${API_VERSION}/tasks`, taskRoutes);
 app.use(`/api/${API_VERSION}/performance`, performanceRoutes);
 app.use(`/api/${API_VERSION}/rewards`, rewardRoutes);
+app.use(`/api/${API_VERSION}/system-config`, systemConfigRoutes);
+app.use(`/api/${API_VERSION}/admin`, adminRoutes);
+app.use(`/api/${API_VERSION}/collectors`, collectorRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

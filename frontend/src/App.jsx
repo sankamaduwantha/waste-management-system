@@ -23,6 +23,7 @@ import ResidentPerformance from './pages/resident/ResidentPerformance'
 // City Manager pages
 import CityManagerDashboard from './pages/city-manager/Dashboard'
 import FleetManagement from './pages/city-manager/FleetManagement'
+import DriverManagement from './pages/city-manager/DriverManagement'
 import RouteManagement from './pages/city-manager/RouteManagement'
 import BinManagement from './pages/city-manager/BinManagement'
 import RequestManagement from './pages/city-manager/RequestManagement'
@@ -106,8 +107,10 @@ function App() {
         {/* City Manager routes */}
         <Route path="/city-manager/dashboard" element={<PrivateRoute roles={['city_manager', 'admin']}><CityManagerDashboard /></PrivateRoute>} />
         <Route path="/city-manager/fleet" element={<PrivateRoute roles={['city_manager', 'admin']}><FleetManagement /></PrivateRoute>} />
+        <Route path="/city-manager/drivers" element={<PrivateRoute roles={['city_manager', 'admin']}><DriverManagement /></PrivateRoute>} />
         <Route path="/city-manager/routes" element={<PrivateRoute roles={['city_manager', 'admin']}><RouteManagement /></PrivateRoute>} />
         <Route path="/city-manager/bins" element={<PrivateRoute roles={['city_manager', 'admin']}><BinManagement /></PrivateRoute>} />
+        <Route path="/city-manager/zones" element={<PrivateRoute roles={['city_manager', 'admin']}><ZoneManagement /></PrivateRoute>} />
         <Route path="/city-manager/requests" element={<PrivateRoute roles={['city_manager', 'admin']}><RequestManagement /></PrivateRoute>} />
         <Route path="/city-manager/profile" element={<PrivateRoute roles={['city_manager']}><CityManagerProfile /></PrivateRoute>} />
 

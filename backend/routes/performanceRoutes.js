@@ -14,6 +14,28 @@ const { protect, authorize } = require('../middleware/auth');
 router.use(protect);
 
 /**
+ * Resident-only routes (MUST come before /:id route)
+ */
+
+// Get my analytics
+router.get(
+  '/my/analytics',
+  authorize('resident'),
+  performanceController.getMyAnalytics
+);
+
+/**
+ * Manager/Admin routes (specific paths before dynamic)
+ */
+
+// Get dashboard statistics
+router.get(
+  '/dashboard/stats',
+  authorize('sustainability_manager', 'admin'),
+  performanceController.getDashboardStats
+);
+
+/**
  * Public routes (all authenticated users)
  */
 
@@ -28,45 +50,6 @@ router.get('/top-performers', performanceController.getTopPerformers);
 
 // Get environmental impact
 router.get('/environmental-impact', performanceController.getEnvironmentalImpact);
-
-// Get single report
-router.get('/:id', performanceController.getReport);
-
-/**
- * Resident-only routes
- */
-
-// Get my analytics
-router.get(
-  '/my/analytics',
-  authorize('resident'),
-  performanceController.getMyAnalytics
-);
-
-/**
- * Manager/Admin routes
- */
-
-// Get dashboard statistics
-router.get(
-  '/dashboard/stats',
-  authorize('sustainability_manager', 'admin'),
-  performanceController.getDashboardStats
-);
-
-// Get all reports with filters
-router.get(
-  '/',
-  authorize('sustainability_manager', 'admin'),
-  performanceController.getAllReports
-);
-
-// Generate performance report
-router.post(
-  '/generate',
-  authorize('sustainability_manager', 'admin'),
-  performanceController.generateReport
-);
 
 // Get resident analytics
 router.get(
@@ -86,6 +69,27 @@ router.get(
   '/zones/comparison',
   authorize('sustainability_manager', 'admin', 'city_manager'),
   performanceController.getZoneComparison
+);
+
+// Get all reports with filters
+router.get(
+  '/',
+  authorize('sustainability_manager', 'admin'),
+  performanceController.getAllReports
+);
+
+// Get single report (MUST be last among GET routes)
+router.get('/:id', performanceController.getReport);
+
+/**
+ * POST routes
+ */
+
+// Generate performance report
+router.post(
+  '/generate',
+  authorize('sustainability_manager', 'admin'),
+  performanceController.generateReport
 );
 
 /**

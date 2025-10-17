@@ -1,27 +1,40 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const {
+  getAllVehicles,
+  getVehicleStats,
+  getVehicle,
+  createVehicle,
+  updateVehicle,
+  deleteVehicle,
+  updateLocation,
+  addMaintenanceRecord,
+  getMaintenanceDue,
+  getAvailableVehicles
+} = require('../controllers/vehicleController');
 
 router.use(protect);
 
-router.get('/', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get all vehicles' });
-});
+// Statistics and alerts - must come before /:id routes
+router.get('/stats/overview', authorize('city_manager', 'admin'), getVehicleStats);
+router.get('/alerts/maintenance-due', authorize('city_manager', 'admin'), getMaintenanceDue);
+router.get('/available', getAvailableVehicles);
 
-router.post('/', authorize('admin', 'city_manager'), (req, res) => {
-  res.status(201).json({ status: 'success', message: 'Create vehicle' });
-});
+// CRUD routes
+router
+  .route('/')
+  .get(getAllVehicles)
+  .post(authorize('admin', 'city_manager'), createVehicle);
 
-router.get('/tracking', authorize('city_manager', 'admin'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get vehicle tracking data' });
-});
+router
+  .route('/:id')
+  .get(getVehicle)
+  .put(authorize('admin', 'city_manager'), updateVehicle)
+  .delete(authorize('admin'), deleteVehicle);
 
-router.get('/:id', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get vehicle' });
-});
-
-router.put('/:id', authorize('admin', 'city_manager'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Update vehicle' });
-});
+// Location and maintenance
+router.patch('/:id/location', updateLocation);
+router.post('/:id/maintenance', authorize('city_manager', 'admin'), addMaintenanceRecord);
 
 module.exports = router;

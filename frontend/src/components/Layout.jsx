@@ -11,14 +11,20 @@ const Layout = () => {
   const { user } = useAuthStore()
 
   useEffect(() => {
-    // Connect to Socket.io
-    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000')
+    // Only connect if user is logged in
+    if (!user) return;
+
+    // Connect to Socket.io with reconnection options
+    const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
+      reconnection: true,
+      reconnectionDelay: 1000,
+      reconnectionAttempts: 5,
+      transports: ['websocket', 'polling']
+    })
 
     socket.on('connect', () => {
       // console.log('Connected to socket server')
-      if (user) {
-        socket.emit('join-room', user.id)
-      }
+      socket.emit('join-room', user.id)
     })
 
     socket.on('notification', (notification) => {
@@ -26,6 +32,11 @@ const Layout = () => {
         position: 'top-right',
         autoClose: 5000,
       })
+    })
+
+    socket.on('connect_error', (error) => {
+      // Silently handle connection errors - they will auto-retry
+      // console.log('Socket connection error:', error.message)
     })
 
     socket.on('disconnect', () => {

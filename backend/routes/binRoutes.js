@@ -1,27 +1,28 @@
 const express = require('express');
 const router = express.Router();
 const { protect, authorize } = require('../middleware/auth');
+const binController = require('../controllers/binController');
 
 router.use(protect);
 
-router.get('/', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get all bins' });
-});
+// Statistics and analytics
+router.get('/stats/overview', authorize('city_manager', 'admin'), binController.getBinStatsOverview);
+router.get('/stats', authorize('city_manager', 'admin'), binController.getBinStatistics);
+router.get('/analytics/fill-trends', authorize('city_manager', 'admin'), binController.getBinFillTrends);
+router.get('/alerts/attention-needed', authorize('city_manager', 'admin'), binController.getBinsNeedingAttention);
 
-router.post('/', authorize('admin', 'city_manager'), (req, res) => {
-  res.status(201).json({ status: 'success', message: 'Create bin' });
-});
+// CRUD operations
+router.get('/', binController.getAllBins);
+router.post('/', authorize('admin', 'city_manager'), binController.createBin);
+router.get('/:id', binController.getBin);
+router.put('/:id', authorize('admin', 'city_manager'), binController.updateBin);
+router.delete('/:id', authorize('admin', 'city_manager'), binController.decommissionBin);
 
-router.get('/smart-bins', authorize('city_manager', 'admin'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get smart bin data' });
-});
+// QR Code management
+router.post('/:id/regenerate-qr', authorize('city_manager', 'admin'), binController.regenerateQRCode);
 
-router.get('/:id', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get bin' });
-});
-
-router.put('/:id', authorize('admin', 'city_manager'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Update bin' });
-});
+// Bin operations
+router.patch('/:id/fill-level', binController.updateFillLevel);
+router.post('/:id/maintenance', authorize('city_manager', 'admin'), binController.addMaintenanceRecord);
 
 module.exports = router;

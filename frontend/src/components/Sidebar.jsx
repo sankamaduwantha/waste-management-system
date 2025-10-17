@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { 
   FaHome, FaCalendar, FaClipboardList, FaCreditCard, FaUser,
   FaTruck, FaRoute, FaTrash, FaTasks, FaUsers, FaMapMarkedAlt,
-  FaCog, FaChartLine, FaFileAlt, FaLeaf, FaBars, FaTimes, FaTrophy, FaGift 
+  FaCog, FaChartLine, FaFileAlt, FaLeaf, FaBars, FaTimes, FaTrophy, FaGift, FaUserTie 
 } from 'react-icons/fa'
 import useAuthStore from '../store/authStore'
 
@@ -24,8 +24,10 @@ const Sidebar = () => {
     city_manager: [
       { name: 'Dashboard', href: '/city-manager/dashboard', icon: FaHome },
       { name: 'Fleet Management', href: '/city-manager/fleet', icon: FaTruck },
+      { name: 'Drivers', href: '/city-manager/drivers', icon: FaUserTie },
       { name: 'Routes', href: '/city-manager/routes', icon: FaRoute },
       { name: 'Bins', href: '/city-manager/bins', icon: FaTrash },
+      { name: 'Zones', href: '/city-manager/zones', icon: FaMapMarkedAlt },
       { name: 'Requests', href: '/city-manager/requests', icon: FaTasks },
       { name: 'Profile', href: '/city-manager/profile', icon: FaUser },
     ],

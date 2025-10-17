@@ -38,7 +38,7 @@ const vehicleSchema = new mongoose.Schema({
   },
   assignedDriver: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User'
+    ref: 'Driver'
   },
   gpsDevice: {
     deviceId: String,

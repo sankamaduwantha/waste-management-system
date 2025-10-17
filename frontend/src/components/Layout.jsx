@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Sidebar from './Sidebar'
 import Header from './Header'
+import Footer from './Footer'
 import { useEffect } from 'react'
 import { io } from 'socket.io-client'
 import useAuthStore from '../store/authStore'
@@ -14,7 +15,7 @@ const Layout = () => {
     const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000')
 
     socket.on('connect', () => {
-      console.log('Connected to socket server')
+      // console.log('Connected to socket server')
       if (user) {
         socket.emit('join-room', user.id)
       }
@@ -28,7 +29,7 @@ const Layout = () => {
     })
 
     socket.on('disconnect', () => {
-      console.log('Disconnected from socket server')
+      // console.log('Disconnected from socket server')
     })
 
     return () => {
@@ -41,9 +42,12 @@ const Layout = () => {
       <Sidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <Header />
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 p-6">
-          <Outlet />
-        </main>
+        <div className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100 flex flex-col">
+          <main className="flex-1 p-6">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
       </div>
     </div>
   )

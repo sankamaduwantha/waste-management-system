@@ -243,7 +243,7 @@ const usePlasticSuggestionsStore = create(
           // Update in list
           set(state => ({
             suggestions: state.suggestions.map(s => 
-              s.id === id ? response.data.data : s
+              (s._id === id || s.id === id) ? response.data.data : s
             ),
             currentSuggestion: response.data.data,
             loading: false
@@ -269,7 +269,7 @@ const usePlasticSuggestionsStore = create(
           
           // Remove from list
           set(state => ({
-            suggestions: state.suggestions.filter(s => s.id !== id),
+            suggestions: state.suggestions.filter(s => s._id !== id && s.id !== id),
             loading: false
           }));
           
@@ -286,13 +286,20 @@ const usePlasticSuggestionsStore = create(
        * @param {string} id - Suggestion ID
        */
       markAsImplemented: async (id) => {
+        console.log('🔍 DEBUG - markAsImplemented called with ID:', id);
+        
+        if (!id || id === 'undefined') {
+          console.error('❌ ERROR: Invalid ID passed to markAsImplemented:', id);
+          throw new Error('Invalid suggestion ID');
+        }
+        
         try {
           const response = await api.post(`/plastic-suggestions/${id}/implement`);
           
           // Update statistics in list
           set(state => ({
             suggestions: state.suggestions.map(s => 
-              s.id === id 
+              (s._id === id || s.id === id)
                 ? { ...s, statistics: { ...s.statistics, implementations: response.data.data.implementations } }
                 : s
             )

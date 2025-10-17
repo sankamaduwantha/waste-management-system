@@ -154,7 +154,14 @@ const plasticReductionSuggestionSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-    toJSON: { virtuals: true },
+    toJSON: { 
+      virtuals: true,
+      transform: function(doc, ret) {
+        ret._id = ret._id;  // Preserve _id
+        delete ret.id;      // Remove the virtual id field
+        return ret;
+      }
+    },
     toObject: { virtuals: true }
   }
 );
@@ -392,7 +399,7 @@ plasticReductionSuggestionSchema.methods.toDisplayFormat = function() {
     description: this.description,
     category: this.category,
     plasticSaved: this.plasticSavedFormatted,
-    moneySaved: `$${this.moneySaved.toFixed(2)}`,
+    moneySaved: `Rs. ${this.moneySaved.toFixed(2)}`,
     difficulty: this.difficulty,
     impactScore: this.impactScore,
     impactCategory: this.impactCategory,

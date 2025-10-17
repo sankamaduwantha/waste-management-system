@@ -77,6 +77,23 @@ const userSchema = new mongoose.Schema({
       default: true
     }
   },
+  rewardPoints: {
+    current: {
+      type: Number,
+      default: 0,
+      min: [0, 'Current points cannot be negative']
+    },
+    total: {
+      type: Number,
+      default: 0,
+      min: [0, 'Total points cannot be negative']
+    },
+    spent: {
+      type: Number,
+      default: 0,
+      min: [0, 'Spent points cannot be negative']
+    }
+  },
   lastLogin: Date,
   resetPasswordToken: String,
   resetPasswordExpire: Date

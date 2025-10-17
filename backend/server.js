@@ -36,6 +36,9 @@ const notificationRoutes = require('./routes/notificationRoutes');
 const plasticReductionRoutes = require('./routes/plasticReductionRoutes');
 const wasteEntryRoutes = require('./routes/wasteEntryRoutes');
 const appointmentRoutes = require('./routes/appointmentRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const performanceRoutes = require('./routes/performanceRoutes');
+const rewardRoutes = require('./routes/rewardRoutes');
 
 // Import scheduled jobs
 const { scheduleNotifications } = require('./jobs/notificationJobs');
@@ -76,7 +79,7 @@ app.use('/api/', rateLimiter);
 // Database connection
 mongoose.connect(process.env.MONGODB_URI)
 .then(() => {
-  console.log(' MongoDB connected successfully');
+   console.log('MongoDB connected successfully');
   
   // Start scheduled jobs after DB connection
   scheduleNotifications();
@@ -89,15 +92,15 @@ mongoose.connect(process.env.MONGODB_URI)
 
 // Socket.io connection handling
 io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+  // console.log('New client connected:', socket.id);
   
   socket.on('join-room', (userId) => {
     socket.join(userId);
-    console.log(`User ${userId} joined their room`);
+    // console.log(`User ${userId} joined their room`);
   });
   
   socket.on('disconnect', () => {
-    console.log('Client disconnected:', socket.id);
+    // console.log('Client disconnected:', socket.id);
   });
 });
 
@@ -127,6 +130,9 @@ app.use(`/api/${API_VERSION}/notifications`, notificationRoutes);
 app.use(`/api/${API_VERSION}/plastic-suggestions`, plasticReductionRoutes);
 app.use(`/api/${API_VERSION}/waste-entries`, wasteEntryRoutes);
 app.use(`/api/${API_VERSION}/appointments`, appointmentRoutes);
+app.use(`/api/${API_VERSION}/tasks`, taskRoutes);
+app.use(`/api/${API_VERSION}/performance`, performanceRoutes);
+app.use(`/api/${API_VERSION}/rewards`, rewardRoutes);
 
 // 404 handler
 app.use('*', (req, res) => {

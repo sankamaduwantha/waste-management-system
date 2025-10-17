@@ -15,7 +15,7 @@ const Layout = () => {
     const socket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000')
 
     socket.on('connect', () => {
-      console.log('Connected to socket server')
+      // console.log('Connected to socket server')
       if (user) {
         socket.emit('join-room', user.id)
       }
@@ -29,7 +29,7 @@ const Layout = () => {
     })
 
     socket.on('disconnect', () => {
-      console.log('Disconnected from socket server')
+      // console.log('Disconnected from socket server')
     })
 
     return () => {

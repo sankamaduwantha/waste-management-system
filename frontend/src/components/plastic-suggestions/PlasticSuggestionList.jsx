@@ -11,7 +11,9 @@
  */
 
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import PropTypes from 'prop-types';
 import { FaFilter, FaSearch, FaTimes, FaSort } from 'react-icons/fa';
 import usePlasticSuggestionsStore from '../../store/plasticSuggestionsStore';
 import PlasticSuggestionCard from './PlasticSuggestionCard';
@@ -57,7 +59,7 @@ const SORT_OPTIONS = [
   { value: '-moneySaved', label: 'Most Money Saved' }
 ];
 
-const PlasticSuggestionList = () => {
+const PlasticSuggestionList = ({ isAdmin = false }) => {
   // Zustand store
   const {
     suggestions,
@@ -73,6 +75,9 @@ const PlasticSuggestionList = () => {
     clearError,
     openModal
   } = usePlasticSuggestionsStore();
+
+  // Navigation
+  const navigate = useNavigate();
 
   // Local state for search input
   const [searchInput, setSearchInput] = useState('');
@@ -151,7 +156,14 @@ const PlasticSuggestionList = () => {
    * Handle view details
    */
   const handleViewDetails = (suggestion) => {
-    openModal('view', suggestion);
+    if (isAdmin) {
+      // Navigate to detail page for sustainability manager
+      const suggestionId = suggestion._id || suggestion.id;
+      navigate(`/sustainability-manager/plastic-suggestions/${suggestionId}`);
+    } else {
+      // Open modal for residents
+      openModal('view', suggestion);
+    }
   };
 
   /**
@@ -339,14 +351,17 @@ const PlasticSuggestionList = () => {
       {/* Suggestions Grid */}
       {!loading && suggestions.length > 0 && (
         <div className="suggestions-grid">
-          {suggestions.map((suggestion) => (
-            <PlasticSuggestionCard
-              key={suggestion._id}
-              suggestion={suggestion}
-              onImplement={handleImplement}
-              onViewDetails={handleViewDetails}
-            />
-          ))}
+          {suggestions.map((suggestion) => {
+            const key = suggestion._id || suggestion.id || Math.random().toString();
+            return (
+              <PlasticSuggestionCard
+                key={key}
+                suggestion={suggestion}
+                onImplement={handleImplement}
+                onViewDetails={handleViewDetails}
+              />
+            );
+          })}
         </div>
       )}
 
@@ -401,6 +416,10 @@ const PlasticSuggestionList = () => {
       )}
     </div>
   );
+};
+
+PlasticSuggestionList.propTypes = {
+  isAdmin: PropTypes.bool
 };
 
 export default PlasticSuggestionList;

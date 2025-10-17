@@ -11,6 +11,7 @@ import { FaPlus, FaList, FaChartLine, FaLeaf } from 'react-icons/fa';
 import usePlasticSuggestionsStore from '../../store/plasticSuggestionsStore';
 import PlasticSuggestionList from '../../components/plastic-suggestions/PlasticSuggestionList';
 import PlasticSuggestionForm from '../../components/plastic-suggestions/PlasticSuggestionForm';
+import PlasticSuggestionDetail from './PlasticSuggestionDetail';
 import './SustainabilityManagerDashboard.css';
 
 const SustainabilityManagerDashboard = () => {
@@ -116,6 +117,7 @@ const SustainabilityManagerDashboard = () => {
           <Route index element={<Navigate to="plastic-suggestions" replace />} />
           <Route path="plastic-suggestions" element={<PlasticSuggestionList isAdmin={true} />} />
           <Route path="plastic-suggestions/create" element={<PlasticSuggestionForm />} />
+          <Route path="plastic-suggestions/:id" element={<PlasticSuggestionDetail />} />
           <Route path="plastic-suggestions/edit/:id" element={<PlasticSuggestionForm />} />
         </Routes>
       </div>

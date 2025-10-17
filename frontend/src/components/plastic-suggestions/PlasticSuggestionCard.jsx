@@ -112,7 +112,13 @@ const PlasticSuggestionCard = ({
 
   const handleImplementClick = (e) => {
     e.stopPropagation();
-    onImplement && onImplement(_id);
+    // Support both _id (MongoDB) and id (virtual field) for backward compatibility
+    const suggestionId = _id || suggestion.id || suggestion._id;
+    console.log('🔍 DEBUG - Implement clicked:', { _id, id: suggestion.id, suggestionId, fullSuggestion: suggestion });
+    if (!suggestionId) {
+      console.error('❌ ERROR: No valid ID found!', suggestion);
+    }
+    onImplement && onImplement(suggestionId);
   };
 
   const handleCardClick = () => {
@@ -173,7 +179,7 @@ const PlasticSuggestionCard = ({
           <div className="stat-item">
             <FaDollarSign className="stat-icon text-yellow-600" />
             <span className="stat-label">Money Saved:</span>
-            <span className="stat-value">${moneySaved.toFixed(2)}</span>
+            <span className="stat-value">Rs. {moneySaved.toFixed(2)}</span>
           </div>
 
           {statistics && (
@@ -234,7 +240,8 @@ const PlasticSuggestionCard = ({
 // PropTypes validation
 PlasticSuggestionCard.propTypes = {
   suggestion: PropTypes.shape({
-    _id: PropTypes.string.isRequired,
+    _id: PropTypes.string,
+    id: PropTypes.string,
     title: PropTypes.string.isRequired,
     description: PropTypes.string.isRequired,
     category: PropTypes.oneOf([

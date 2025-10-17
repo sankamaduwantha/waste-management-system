@@ -50,5 +50,5 @@ exports.updateBinStatus = () => {
     }
   });
   
-  console.log('✅ Bin status checker started');
+  console.log('Bin status checker started');
 };

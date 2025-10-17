@@ -1,27 +1,43 @@
 const express = require('express');
 const router = express.Router();
+const {
+  getAllSchedules,
+  getScheduleStats,
+  getSchedule,
+  createSchedule,
+  updateSchedule,
+  deleteSchedule,
+  assignResources,
+  getSchedulesByZone,
+  getSchedulesByDay,
+  updateScheduleStatus,
+  getAvailableVehicles,
+  getAvailableDrivers
+} = require('../controllers/scheduleController');
 const { protect, authorize } = require('../middleware/auth');
 
+// All routes require authentication
 router.use(protect);
 
-router.get('/', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get all schedules' });
-});
+// Stats and special routes
+router.get('/stats/overview', authorize('admin', 'city_manager'), getScheduleStats);
+router.get('/available-vehicles', authorize('admin', 'city_manager'), getAvailableVehicles);
+router.get('/available-drivers', authorize('admin', 'city_manager'), getAvailableDrivers);
+router.get('/zone/:zoneId', getSchedulesByZone);
+router.get('/day/:day', getSchedulesByDay);
 
-router.post('/', authorize('admin', 'city_manager'), (req, res) => {
-  res.status(201).json({ status: 'success', message: 'Create schedule' });
-});
+// CRUD routes
+router.route('/')
+  .get(getAllSchedules)
+  .post(authorize('admin', 'city_manager'), createSchedule);
 
-router.get('/:id', (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Get schedule' });
-});
+router.route('/:id')
+  .get(getSchedule)
+  .put(authorize('admin', 'city_manager'), updateSchedule)
+  .delete(authorize('admin', 'city_manager'), deleteSchedule);
 
-router.put('/:id', authorize('admin', 'city_manager'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Update schedule' });
-});
-
-router.delete('/:id', authorize('admin', 'city_manager'), (req, res) => {
-  res.status(200).json({ status: 'success', message: 'Delete schedule' });
-});
+// Assignment and status routes
+router.patch('/:id/assign', authorize('admin', 'city_manager'), assignResources);
+router.patch('/:id/status', authorize('admin', 'city_manager', 'garbage_collector'), updateScheduleStatus);
 
 module.exports = router;

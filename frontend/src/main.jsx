@@ -6,6 +6,8 @@ import { ToastContainer } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import App from './App'
 import './index.css'
+// Import axios config to set up global interceptors
+import './utils/axiosConfig'
 
 // Create a client
 const queryClient = new QueryClient({

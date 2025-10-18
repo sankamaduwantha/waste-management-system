@@ -185,6 +185,45 @@ exports.createSchedule = catchAsync(async (req, res, next) => {
     return next(new AppError('A schedule already exists for this zone and time slot', 400));
   }
 
+  // Process assignedCrew to ensure it's an array of ObjectIds
+  let processedAssignedCrew = [];
+  if (assignedCrew) {
+    if (Array.isArray(assignedCrew)) {
+      // If it's already an array, use it directly
+      processedAssignedCrew = assignedCrew;
+    } else if (typeof assignedCrew === 'string') {
+      // Check if the string looks like a stringified array: "[ '01', '02' ]" or similar
+      if (assignedCrew.trim().startsWith('[') && assignedCrew.trim().endsWith(']')) {
+        try {
+          // Try to parse it using a more robust approach
+          // First, convert single quotes to double quotes for proper JSON parsing
+          const jsonStr = assignedCrew.replace(/'/g, '"');
+          const parsed = JSON.parse(jsonStr);
+          processedAssignedCrew = Array.isArray(parsed) ? parsed : [assignedCrew];
+        } catch (e) {
+          console.log('Error parsing assignedCrew:', e);
+          // If parsing fails, try to extract IDs manually
+          const matches = assignedCrew.match(/['"]([^'"]+)['"]/g);
+          if (matches) {
+            processedAssignedCrew = matches.map(m => m.replace(/['"]/g, ''));
+          } else {
+            // If all else fails, treat as a single ID
+            processedAssignedCrew = [assignedCrew];
+          }
+        }
+      } else {
+        try {
+          // Try to parse if it's a JSON string of an array
+          const parsed = JSON.parse(assignedCrew);
+          processedAssignedCrew = Array.isArray(parsed) ? parsed : [assignedCrew];
+        } catch (e) {
+          // If not a JSON string, treat as a single ID
+          processedAssignedCrew = [assignedCrew];
+        }
+      }
+    }
+  }
+
   const schedule = await Schedule.create({
     zone,
     wasteType,
@@ -192,7 +231,7 @@ exports.createSchedule = catchAsync(async (req, res, next) => {
     timeSlot,
     route,
     assignedVehicle: assignedVehicle || undefined,
-    assignedCrew: assignedCrew || [],
+    assignedCrew: processedAssignedCrew,
     frequency: frequency || 'weekly',
     estimatedDuration: estimatedDuration || 60
   });
@@ -246,6 +285,45 @@ exports.updateSchedule = catchAsync(async (req, res, next) => {
     }
   }
 
+  // Process assignedCrew to ensure it's an array of ObjectIds
+  let processedAssignedCrew = [];
+  if (assignedCrew !== undefined) {
+    if (Array.isArray(assignedCrew)) {
+      // If it's already an array, use it directly
+      processedAssignedCrew = assignedCrew;
+    } else if (typeof assignedCrew === 'string') {
+      // Check if the string looks like a stringified array: "[ '01', '02' ]" or similar
+      if (assignedCrew.trim().startsWith('[') && assignedCrew.trim().endsWith(']')) {
+        try {
+          // Try to parse it using a more robust approach
+          // First, convert single quotes to double quotes for proper JSON parsing
+          const jsonStr = assignedCrew.replace(/'/g, '"');
+          const parsed = JSON.parse(jsonStr);
+          processedAssignedCrew = Array.isArray(parsed) ? parsed : [assignedCrew];
+        } catch (e) {
+          console.log('Error parsing assignedCrew:', e);
+          // If parsing fails, try to extract IDs manually
+          const matches = assignedCrew.match(/['"]([^'"]+)['"]/g);
+          if (matches) {
+            processedAssignedCrew = matches.map(m => m.replace(/['"]/g, ''));
+          } else {
+            // If all else fails, treat as a single ID
+            processedAssignedCrew = [assignedCrew];
+          }
+        }
+      } else {
+        try {
+          // Try to parse if it's a JSON string of an array
+          const parsed = JSON.parse(assignedCrew);
+          processedAssignedCrew = Array.isArray(parsed) ? parsed : [assignedCrew];
+        } catch (e) {
+          // If not a JSON string, treat as a single ID
+          processedAssignedCrew = [assignedCrew];
+        }
+      }
+    }
+  }
+
   // Update fields
   if (zone) schedule.zone = zone;
   if (wasteType) schedule.wasteType = wasteType;
@@ -253,7 +331,7 @@ exports.updateSchedule = catchAsync(async (req, res, next) => {
   if (timeSlot) schedule.timeSlot = timeSlot;
   if (route !== undefined) schedule.route = route;
   if (assignedVehicle !== undefined) schedule.assignedVehicle = assignedVehicle || null;
-  if (assignedCrew !== undefined) schedule.assignedCrew = assignedCrew;
+  if (assignedCrew !== undefined) schedule.assignedCrew = processedAssignedCrew;
   if (frequency) schedule.frequency = frequency;
   if (estimatedDuration) schedule.estimatedDuration = estimatedDuration;
   if (status) schedule.status = status;
@@ -309,9 +387,45 @@ exports.assignResources = catchAsync(async (req, res, next) => {
     schedule.assignedVehicle = assignedVehicle;
   }
 
-  // Update crew
+  // Process assignedCrew to ensure it's an array of ObjectIds
   if (assignedCrew !== undefined) {
-    schedule.assignedCrew = assignedCrew;
+    let processedAssignedCrew = [];
+    
+    if (Array.isArray(assignedCrew)) {
+      // If it's already an array, use it directly
+      processedAssignedCrew = assignedCrew;
+    } else if (typeof assignedCrew === 'string') {
+      // Check if the string looks like a stringified array: "[ '01', '02' ]" or similar
+      if (assignedCrew.trim().startsWith('[') && assignedCrew.trim().endsWith(']')) {
+        try {
+          // Try to parse it using a more robust approach
+          // First, convert single quotes to double quotes for proper JSON parsing
+          const jsonStr = assignedCrew.replace(/'/g, '"');
+          const parsed = JSON.parse(jsonStr);
+          processedAssignedCrew = Array.isArray(parsed) ? parsed : [assignedCrew];
+        } catch (e) {
+          console.log('Error parsing assignedCrew:', e);
+          // If parsing fails, try to extract IDs manually
+          const matches = assignedCrew.match(/['"]([^'"]+)['"]/g);
+          if (matches) {
+            processedAssignedCrew = matches.map(m => m.replace(/['"]/g, ''));
+          } else {
+            // If all else fails, treat as a single ID
+            processedAssignedCrew = [assignedCrew];
+          }
+        }
+      } else {
+        try {
+          // Try to parse if it's a standard JSON string of an array
+          const parsed = JSON.parse(assignedCrew);
+          processedAssignedCrew = Array.isArray(parsed) ? parsed : [assignedCrew];
+        } catch (e) {
+          // If not a JSON string, treat as a single ID
+          processedAssignedCrew = [assignedCrew];
+        }
+      }
+    }
+    schedule.assignedCrew = processedAssignedCrew;
   }
 
   await schedule.save();

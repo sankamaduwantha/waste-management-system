@@ -134,11 +134,14 @@ const RouteManagement = () => {
     try {
       const token = localStorage.getItem('token');
       
-      // Clean up empty values
+      // Clean up empty values and ensure proper data types
       const cleanedData = { ...formData };
       if (!cleanedData.assignedVehicle) delete cleanedData.assignedVehicle;
       if (!cleanedData.assignedCrew || cleanedData.assignedCrew.length === 0) {
         delete cleanedData.assignedCrew;
+      } else {
+        // Ensure assignedCrew is sent as an array
+        cleanedData.assignedCrew = Array.isArray(cleanedData.assignedCrew) ? cleanedData.assignedCrew : [];
       }
 
       if (isEditMode) {
@@ -170,7 +173,18 @@ const RouteManagement = () => {
 
     try {
       const token = localStorage.getItem('token');
-      await axios.patch(`${API_URL}/${selectedSchedule._id}/assign`, assignmentData, {
+      
+      // Ensure proper data types
+      const cleanedAssignmentData = { ...assignmentData };
+      
+      // Make sure assignedCrew is sent as an array
+      if (cleanedAssignmentData.assignedCrew && cleanedAssignmentData.assignedCrew.length > 0) {
+        cleanedAssignmentData.assignedCrew = Array.isArray(cleanedAssignmentData.assignedCrew) 
+          ? cleanedAssignmentData.assignedCrew 
+          : [];
+      }
+      
+      await axios.patch(`${API_URL}/${selectedSchedule._id}/assign`, cleanedAssignmentData, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success('✅ Resources assigned successfully!');
